@@ -2,21 +2,284 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>CERDIL · Sistema de Coleta — Ultrassonografia</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;700&family=DM+Sans:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Atlas System · Ultrassonografia</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --blue-dark:#0d1f3c;
+  --blue-mid:#1a3a6b;
+  --blue:#1e5fd4;
+  --blue-light:#3b8bff;
+  --blue-bright:#5ba3ff;
+  --cyan:#00b4d8;
+  --surface:#f0f4fb;
+  --surface2:#e2eaf6;
+  --white:#ffffff;
+  --text:#0d1f3c;
+  --text2:#3a5080;
+  --text3:#6b82a8;
+  --border:#c8d8f0;
+  --success:#0d9e6e;
+  --success-bg:#e6f7f2;
+  --warning:#d97706;
+  --warning-bg:#fef3e2;
+  --danger:#dc2626;
+  --danger-bg:#fef2f2;
+  --purple:#7c3aed;
+  --purple-bg:#f3effe;
+  --radius:12px;
+  --shadow:0 2px 16px rgba(30,95,212,.10);
+  --shadow-lg:0 8px 40px rgba(30,95,212,.16);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--surface);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;font-size:15px}
+#app{max-width:640px;margin:0 auto;min-height:100vh}
 
-<!-- Firebase SDK -->
+/* ── TOPBAR ── */
+.topbar{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 18px;background:var(--white);border-bottom:1.5px solid var(--border);
+  position:sticky;top:0;z-index:50;gap:10px;box-shadow:var(--shadow)}
+.topbar-brand{display:flex;align-items:center;gap:10px}
+.topbar-brand img{height:32px;object-fit:contain}
+.topbar-info{font-size:11px;color:var(--text3);font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.topbar-title{font-size:14px;font-weight:700;color:var(--blue)}
+.topbar-sub{font-size:11px;color:var(--text3)}
+
+/* ── TABS ── */
+.tabs-bar{display:flex;gap:2px;padding:10px 16px 0;background:var(--white);
+  border-bottom:1.5px solid var(--border)}
+.tab{flex:1;padding:9px 4px;border:none;border-radius:8px 8px 0 0;font-family:inherit;
+  font-size:12px;font-weight:700;cursor:pointer;background:transparent;
+  color:var(--text3);transition:all .15s;letter-spacing:.2px}
+.tab.active{background:var(--blue-dark);color:#fff}
+
+/* ── CONTENT ── */
+.content{padding:16px;padding-bottom:80px}
+.screen{display:flex;flex-direction:column;min-height:100vh}
+
+/* ── LOGIN ── */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  padding:20px;background:linear-gradient(145deg,#0d1f3c 0%,#1a3a6b 50%,#1e5fd4 100%)}
+.login-card{width:100%;max-width:380px;background:var(--white);border-radius:24px;
+  padding:36px 30px;box-shadow:var(--shadow-lg)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo img{height:56px;object-fit:contain;margin-bottom:12px}
+.login-subtitle{font-size:13px;color:var(--text3);font-weight:500}
+.login-divider{height:1px;background:var(--border);margin:20px 0}
+.login-hint-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+  padding:10px 14px;font-size:12px;color:var(--text3);text-align:center;margin-top:12px}
+
+/* ── FORMS ── */
+.field-group{margin-bottom:14px}
+.field-label{display:block;font-size:11px;font-weight:700;color:var(--text3);
+  margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase}
+.field-input{width:100%;padding:11px 14px;border-radius:10px;background:var(--surface);
+  border:1.5px solid var(--border);color:var(--text);font-size:14px;
+  font-family:inherit;outline:none;transition:border-color .15s;appearance:none}
+.field-input:focus{border-color:var(--blue);background:var(--white)}
+.field-input option{background:var(--white);color:var(--text)}
+textarea.field-input{resize:vertical;min-height:70px}
+
+/* ── BUTTONS ── */
+.btn-primary{padding:12px 22px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--blue) 0%,var(--blue-light) 100%);
+  color:#fff;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;
+  letter-spacing:.2px;transition:opacity .15s;box-shadow:0 4px 14px rgba(30,95,212,.3)}
+.btn-primary:hover{opacity:.9}
+.btn-primary.full{width:100%}
+.btn-accent{padding:9px 18px;border-radius:9px;border:1.5px solid var(--blue);
+  background:var(--blue);color:#fff;font-weight:700;font-size:12px;
+  cursor:pointer;font-family:inherit;transition:opacity .15s}
+.btn-accent:hover{opacity:.85}
+.btn-ghost{padding:9px 16px;border-radius:9px;border:1.5px solid var(--border);
+  background:transparent;color:var(--text3);font-weight:600;font-size:12px;
+  cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+.btn-sm{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);
+  background:var(--white);color:var(--text2);font-weight:700;font-size:11px;
+  cursor:pointer;font-family:inherit;transition:all .15s}
+.btn-sm:hover{border-color:var(--blue);color:var(--blue)}
+.btn-danger{padding:11px 18px;border-radius:10px;border:1.5px solid var(--danger);
+  background:var(--danger-bg);color:var(--danger);font-weight:700;font-size:13px;
+  cursor:pointer;font-family:inherit}
+.btn-success{padding:13px 22px;border-radius:10px;border:none;
+  background:linear-gradient(135deg,var(--success) 0%,#0fb880 100%);
+  color:#fff;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;
+  width:100%;letter-spacing:.3px;box-shadow:0 4px 14px rgba(13,158,110,.25);
+  margin-top:4px}
+.btn-back{padding:8px 14px;border-radius:9px;border:1.5px solid var(--border);
+  background:var(--white);color:var(--text3);font-weight:700;font-size:13px;
+  cursor:pointer;font-family:inherit}
+
+/* ── CARDS ── */
+.pac-card{background:var(--white);border:1.5px solid var(--border);
+  border-left:4px solid var(--blue);border-radius:var(--radius);
+  padding:14px 16px;margin-bottom:10px;cursor:pointer;
+  transition:box-shadow .15s,border-color .15s;box-shadow:var(--shadow)}
+.pac-card:hover{box-shadow:var(--shadow-lg);border-color:var(--blue-light)}
+.pac-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.pac-card-name{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px}
+.pac-card-sub{font-size:12px;color:var(--text3);line-height:1.5}
+.pac-card-time{font-size:11px;color:var(--text3);margin-top:4px;
+  font-family:'IBM Plex Mono',monospace}
+
+/* ── BADGES ── */
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;
+  font-size:11px;font-weight:700;letter-spacing:.4px;border:1.5px solid var(--border);
+  background:var(--surface);color:var(--text3)}
+
+/* ── STATUS BAR ── */
+.status-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.status-chip{padding:6px 12px;border-radius:8px;border:1.5px solid;
+  font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px}
+.status-count{font-size:16px;font-weight:900}
+
+/* ── TIMESTAMPS ── */
+.ts-section{background:var(--white);border:1.5px solid var(--border);
+  border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.ts-section-title{font-size:11px;font-weight:800;letter-spacing:1.2px;
+  text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:6px;
+  color:var(--text2)}
+.ts-btn{display:flex;flex-direction:column;align-items:flex-start;padding:13px 16px;
+  border-radius:10px;width:100%;background:var(--surface);
+  border:1.5px solid var(--border);cursor:pointer;font-family:inherit;
+  text-align:left;margin-bottom:8px;transition:all .2s}
+.ts-btn:last-child{margin-bottom:0}
+.ts-btn.ts-done{background:var(--success-bg);border-color:#0d9e6e66}
+.ts-btn.ts-disabled{opacity:.45;cursor:not-allowed}
+.ts-btn.ts-readonly{cursor:default;background:var(--surface2)}
+.ts-label{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  color:var(--text3);margin-bottom:4px}
+.ts-time{font-size:16px;font-weight:800;font-family:'IBM Plex Mono',monospace;
+  color:var(--text);letter-spacing:.5px}
+.ts-btn.ts-done .ts-time{color:var(--success)}
+.ts-check{font-size:10px;color:var(--success);margin-top:3px;font-weight:700}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:420px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+.kpi-card{padding:14px 10px;border-radius:12px;text-align:center;
+  border:1.5px solid var(--border);background:var(--white);box-shadow:var(--shadow)}
+.kpi-mini{padding:12px 8px;border-radius:10px;text-align:center;
+  border:1.5px solid var(--border);background:var(--white)}
+.kpi-val{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums;color:var(--blue)}
+.kpi-lbl{font-size:10px;color:var(--text3);letter-spacing:.8px;
+  text-transform:uppercase;margin-top:3px;font-weight:600}
+
+/* ── CHART ── */
+.exam-chart{background:var(--white);border:1.5px solid var(--border);
+  border-radius:12px;padding:14px;box-shadow:var(--shadow)}
+.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.chart-row:last-child{margin-bottom:0}
+.chart-label{font-size:11px;color:var(--text);width:150px;flex-shrink:0;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:500}
+.chart-bar-wrap{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.chart-bar{height:100%;background:var(--blue);border-radius:3px;transition:width .5s}
+.chart-val{font-size:12px;font-weight:800;color:var(--blue);width:24px;text-align:right}
+
+/* ── ADVERSE ── */
+.adverse-chip{padding:8px 12px;border-radius:8px;background:var(--warning-bg);
+  border:1.5px solid #d9770633;font-size:12px;color:var(--text);
+  margin-bottom:6px;display:flex;justify-content:space-between;align-items:center}
+
+/* ── PAC HEADER ── */
+.pac-header{background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue-mid) 100%);
+  border-radius:14px;padding:20px;margin-bottom:16px;color:#fff}
+.pac-name{font-size:20px;font-weight:900;margin-bottom:4px}
+.pac-meta{font-size:12px;opacity:.75;margin-bottom:2px}
+.pac-id{font-size:11px;opacity:.5;font-family:'IBM Plex Mono',monospace;margin-top:4px}
+
+/* ── SECTION TITLE ── */
+.section-title{font-size:11px;font-weight:800;letter-spacing:1.5px;
+  text-transform:uppercase;color:var(--text3);margin-bottom:12px;
+  padding-bottom:8px;border-bottom:1.5px solid var(--border)}
+.list-header{font-size:12px;font-weight:800;color:var(--text3);
+  letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;
+  display:flex;align-items:center;gap:6px}
+
+/* ── MODAL ── */
+#modal-overlay{position:fixed;inset:0;background:rgba(13,31,60,.6);
+  z-index:1000;display:none;align-items:flex-end;justify-content:center;
+  padding:0;backdrop-filter:blur(4px)}
+.modal-card{background:var(--white);border-radius:24px 24px 0 0;
+  padding:24px 22px;width:100%;max-width:640px;max-height:92vh;
+  overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-handle{width:40px;height:4px;background:var(--border);border-radius:2px;
+  margin:0 auto 20px}
+.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-title{font-size:17px;font-weight:800;color:var(--text)}
+
+/* ── EXAME MULTI-SELECT ── */
+.exame-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;
+  max-height:280px;overflow-y:auto;padding-right:4px}
+@media(min-width:400px){.exame-grid{grid-template-columns:repeat(2,1fr)}}
+.exame-chip{padding:9px 10px;border-radius:9px;border:1.5px solid var(--border);
+  background:var(--surface);font-size:12px;font-weight:600;color:var(--text2);
+  cursor:pointer;transition:all .15s;text-align:left;font-family:inherit;line-height:1.3}
+.exame-chip:hover{border-color:var(--blue-light);background:#eff5ff}
+.exame-chip.selected{border-color:var(--blue);background:#eff5ff;color:var(--blue);font-weight:800}
+.exame-selected-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;min-height:28px}
+.exame-tag{padding:4px 10px;border-radius:20px;background:var(--blue);
+  color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px}
+.exame-tag-remove{cursor:pointer;opacity:.7;font-size:13px;line-height:1}
+.exame-tag-remove:hover{opacity:1}
+
+/* ── STATUS ATENDIMENTO ── */
+.status-atend-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.status-atend-btn{padding:14px;border-radius:10px;border:2px solid var(--border);
+  background:var(--surface);cursor:pointer;font-family:inherit;
+  font-size:13px;font-weight:700;color:var(--text2);transition:all .2s;text-align:center}
+.status-atend-btn.sel-concluido{border-color:var(--success);background:var(--success-bg);color:var(--success)}
+.status-atend-btn.sel-cancelado{border-color:var(--danger);background:var(--danger-bg);color:var(--danger)}
+
+/* ── REPORT TABLE ── */
+.report-table{background:var(--white);border:1.5px solid var(--border);
+  border-radius:12px;overflow:hidden;box-shadow:var(--shadow)}
+.rt-header,.rt-row{display:grid;grid-template-columns:1fr .7fr .7fr 1fr 1fr;
+  gap:8px;padding:10px 14px;font-size:12px}
+.rt-header{background:var(--blue-dark);color:#fff;font-weight:700;
+  font-size:11px;letter-spacing:.5px;text-transform:uppercase}
+.rt-row{border-top:1px solid var(--border);color:var(--text)}
+.rt-row:hover{background:var(--surface)}
+
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:52px 24px;color:var(--text3);
+  font-size:14px;background:var(--white);border:1.5px dashed var(--border);
+  border-radius:14px;line-height:1.8}
+
+/* ── ERROR ── */
+.error-msg{font-size:12px;color:var(--danger);padding:9px 12px;
+  background:var(--danger-bg);border-radius:9px;margin-bottom:10px;
+  border:1px solid #dc262622;font-weight:600}
+
+/* ── PRIORITY SELECTOR ── */
+.prio-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.prio-btn{padding:9px 6px;border-radius:9px;border:1.5px solid var(--border);
+  background:var(--surface);cursor:pointer;font-family:inherit;
+  font-size:11px;font-weight:700;color:var(--text3);transition:all .2s;text-align:center}
+
+/* ── ADMIN ── */
+.admin-user-card{background:var(--white);border:1.5px solid var(--border);
+  border-radius:12px;padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow)}
+.profile-tag{display:inline-block;padding:3px 8px;border-radius:6px;
+  font-size:10px;font-weight:800;letter-spacing:.5px;margin-right:4px;margin-bottom:4px}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, set, push, onValue, update, get }
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, push, onValue, update, get, off }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-/* ═══════════════════════════════════════════════════════════════════
-   🔧 CONFIGURAÇÃO DO FIREBASE
-   Substitua os valores abaixo pelas suas credenciais do Firebase.
-   Instruções em: https://console.firebase.google.com
-   ═══════════════════════════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════
+   🔧 SUBSTITUA ABAIXO PELAS SUAS CREDENCIAIS DO FIREBASE
+══════════════════════════════════════════════════════════ */
 const firebaseConfig = {
   apiKey:            "AIzaSyBT0AGarrpCrpt6K8ylaLGBXrK-R9EMxsg",
   authDomain:        "cerdil-coleta-de-dados.firebaseapp.com",
@@ -27,113 +290,156 @@ const firebaseConfig = {
   appId:             "1:469092128857:web:062f65ab59d350e0a33948"
 };
 
+/* ══════════════════════════════════════════════════════════
+   🔐 CREDENCIAIS ADMIN — NÃO COMPARTILHE ESTE ARQUIVO
+   Login: admin | Senha: Atlas@2026#
+══════════════════════════════════════════════════════════ */
+const ADMIN_FIXO = { usuario:"admin", senha:"Atlas@2026#", nome:"Administrador", perfil:["admin","supervisor"], id:"root" };
+
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-/* ─── Helpers ─────────────────────────────────────────── */
+/* ─── Helpers ─────────────────────────────────────── */
 const nowISO = () => new Date().toISOString();
 const uid    = () => Math.random().toString(36).slice(2,8).toUpperCase();
+const fmtTime = iso => { if(!iso) return "—"; return new Date(iso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"}); };
+const fmtDate = iso => { if(!iso) return "—"; return new Date(iso).toLocaleDateString("pt-BR"); };
+const diffMin = (a,b) => { if(!a||!b) return null; const d=Math.round((new Date(b)-new Date(a))/60000); return d<0?0:d; };
+const todayStr = () => fmtDate(new Date().toISOString());
+const horaTurno = () => { const h=new Date().getHours(); if(h<12)return"Manhã"; if(h<18)return"Tarde"; return"Noite"; };
 
-function fmtTime(iso){
-  if(!iso) return "—";
-  return new Date(iso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-}
-function fmtDate(iso){
-  if(!iso) return "—";
-  return new Date(iso).toLocaleDateString("pt-BR");
-}
-function diffMin(a,b){
-  if(!a||!b) return null;
-  const d = Math.round((new Date(b)-new Date(a))/60000);
-  return d < 0 ? 0 : d;
-}
-function todayStr(){ return fmtDate(new Date().toISOString()); }
-
-/* ─── Dados fixos ─────────────────────────────────────── */
-const EXAM_TYPES = [
-  "Abdominal Total","Abdominal Superior","Abdominal Inferior",
-  "Obstétrico","Obstétrico Morfológico","Pélvico / Ginecológico",
-  "Transvaginal","Mama","Tireoide","Cervical","Renal",
-  "Próstata","Testicular","Articular","Musculotendinoso",
-  "Doppler Vascular","Doppler Obstétrico","Partes Moles","Outro"
+/* ─── Dados fixos ─────────────────────────────────── */
+const EXAMES = [
+  "US Abdome Inferior","US Abdome Superior","US Abdome Total",
+  "US Antebraço Direito","US Antebraço Esquerdo","US Aparelho Urinário",
+  "US Axilas","US Bolsa Escrotal","US Braço Direito","US Braço Esquerdo",
+  "US Cervical","US Cotovelo Direito","US Cotovelo Esquerdo",
+  "US Coxa Direita","US Coxa Esquerda","US Doppler Carótidas e Vertebrais",
+  "US Doppler de Órgãos ou Estruturas Superficiais","US Doppler Obstétrica",
+  "US Elastografia Hepática","US Estruturas Superficiais",
+  "US Glândulas Salivares","US Joelho Direito","US Joelho Esquerdo",
+  "US Mamas","US Mão Direita","US Mão Esquerda","US Morfológico",
+  "US Obstétrica","US Obstétrica com Translucência Nucal",
+  "US Obstétrico Endovaginal","US Obstétrico Primeiro Trimestre",
+  "US Ombro Direito","US Ombro Esquerdo","US Órgãos Superficiais",
+  "US Parede Abdominal","US Partes Moles","US Pé Direito","US Pé Esquerdo",
+  "US Perna Direita","US Perna Esquerda","US Pescoço",
+  "US Próstata Abdominal","US Próstata Transretal",
+  "US Punho Direito","US Punho Esquerdo","US Quadril Direito","US Quadril Esquerdo",
+  "US Região Inguinal","US Tireoide","US Tornozelo Direito","US Tornozelo Esquerdo",
+  "US Transvaginal"
 ];
+
 const CONVENIOS = [
-  "Particular","Unimed","Bradesco Saúde","SulAmérica","Amil",
-  "Hapvida","NotreDame","Cassi","Geap","Outro Convênio"
+  "Cassems","Hapvida","Bradesco","Sul América","Cassi","UFMS",
+  "Oeste Saúde","Sepaco","Impcg","Prover Saúde","Postal Saúde",
+  "Saúde Caixa","Base Aérea","Fusex","Marinha","Particular","PAX","Tabela Social"
 ];
+
 const PRIORIDADES = [
-  {v:"normal",   l:"Normal",    cor:"#3b82f6"},
-  {v:"gestante", l:"Gestante",  cor:"#a855f7"},
-  {v:"idoso",    l:"Idoso ≥60", cor:"#f59e0b"},
-  {v:"crianca",  l:"Criança",   cor:"#06b6d4"},
-  {v:"deficiente",l:"PcD",      cor:"#10b981"},
-  {v:"emergencia",l:"Emergência",cor:"#ef4444"}
+  {v:"normal",   l:"Normal",    cor:"#1e5fd4", bg:"#eff5ff"},
+  {v:"gestante", l:"Gestante",  cor:"#7c3aed", bg:"#f3effe"},
+  {v:"idoso",    l:"Idoso ≥60", cor:"#d97706", bg:"#fef3e2"},
+  {v:"crianca",  l:"Criança",   cor:"#0891b2", bg:"#e0f7fb"},
+  {v:"deficiente",l:"PcD",      cor:"#0d9e6e", bg:"#e6f7f2"},
+  {v:"emergencia",l:"Emergência",cor:"#dc2626", bg:"#fef2f2"}
 ];
+
 const ADVERSOS = [
   "Paciente sem preparo (jejum)","Documento incorreto / ausente",
   "Atraso na autorização de convênio","Atraso do médico",
   "Falha no equipamento","Dificuldade de mobilidade",
-  "Exame interrompido","Troca de sala","Outro"
+  "Exame interrompido","Outro"
 ];
 
+const PERFIS = {
+  recepcao:"🟦 Recepção", sala:"🟣 Sala de Exame",
+  supervisor:"📊 Supervisor", admin:"⚙ Admin"
+};
+
 function statusOf(p){
-  if(p.cancelado||p.desistiu)          return "encerrado";
-  if(p.saidaClinica)                   return "concluido";
-  if(p.fimExame)                       return "aguardando_saida";
-  if(p.inicioExame)                    return "em_exame";
-  if(p.fimRecepcao)                    return "aguardando_exame";
-  if(p.inicioRecepcao)                 return "na_recepcao";
+  if(p.statusAtendimento==="cancelado")  return "cancelado";
+  if(p.statusAtendimento==="concluido")  return "concluido";
+  if(p.fimExame)                          return "concluido";
+  if(p.inicioExame)                       return "em_exame";
+  if(p.fimRecepcao)                       return "aguardando_exame";
+  if(p.inicioRecepcao)                    return "na_recepcao";
   return "chegou";
 }
+
 const STATUS_META = {
-  chegou:           {l:"Aguardando recepção",   cor:"#f59e0b"},
-  na_recepcao:      {l:"Em atendimento recepção",cor:"#3b82f6"},
-  aguardando_exame: {l:"Aguardando exame",       cor:"#a855f7"},
-  em_exame:         {l:"Em exame",               cor:"#10b981"},
-  aguardando_saida: {l:"Aguardando saída",        cor:"#06b6d4"},
-  concluido:        {l:"Concluído",              cor:"#6b7280"},
-  encerrado:        {l:"Cancelado/Desistência",  cor:"#ef4444"}
+  chegou:          {l:"Aguardando recepção",    cor:"#d97706", bg:"#fef3e2"},
+  na_recepcao:     {l:"Em atend. recepção",     cor:"#1e5fd4", bg:"#eff5ff"},
+  aguardando_exame:{l:"Aguardando exame",        cor:"#7c3aed", bg:"#f3effe"},
+  em_exame:        {l:"Em exame",               cor:"#0d9e6e", bg:"#e6f7f2"},
+  concluido:       {l:"Concluído",              cor:"#6b82a8", bg:"#f0f4fb"},
+  cancelado:       {l:"Cancelado",              cor:"#dc2626", bg:"#fef2f2"}
 };
 
 /* ══════════════════════════════════════════════════════════
-   ESTADO DA APLICAÇÃO
+   ESTADO
 ══════════════════════════════════════════════════════════ */
-let currentUser   = null; // {nome, perfil, id}
-let pacientes     = {};   // snapshot do Firebase
-let usuarios      = {};   // snapshot do Firebase
+let currentUser = null;
+let pacientes   = {};
+let usuarios    = {};
+let unsubPac    = null;
+let unsubUsers  = null;
+let currentPerfil = null; // perfil ativo selecionado pelo usuário
 
 /* ══════════════════════════════════════════════════════════
-   ROTEADOR DE TELAS
+   ROTEADOR
 ══════════════════════════════════════════════════════════ */
 function render(tela, dados={}){
+  // Limpa listeners de detalhe anteriores
+  if(tela !== "detalhe" && unsubPac) { /* mantém o listener global */ }
   document.getElementById("app").innerHTML = "";
-  const fns = {
-    login:       telaLogin,
-    recepcao:    telaRecepcao,
-    sala:        telaSala,
-    supervisor:  telaSupervisor,
-    detalhe:     telaDetalhe,
-    admin:       telaAdmin
-  };
+  document.getElementById("app").dataset.tela = tela;
+  const fns = { login:telaLogin, perfil:telaSelecionaPerfil,
+    recepcao:telaRecepcao, sala:telaSala, supervisor:telaSupervisor,
+    detalhe:telaDetalhe, admin:telaAdmin };
   (fns[tela]||telaLogin)(dados);
 }
 
 /* ══════════════════════════════════════════════════════════
-   TELA DE LOGIN
+   LISTENERS GLOBAIS (tempo real)
+══════════════════════════════════════════════════════════ */
+function iniciarListeners(){
+  if(unsubPac) return;
+  const pacRef = ref(db,"pacientes");
+  onValue(pacRef, snap => {
+    pacientes = snap.val()||{};
+    atualizarConteudo();
+  });
+  const userRef = ref(db,"usuarios");
+  onValue(userRef, snap => { usuarios = snap.val()||{}; });
+  unsubPac = true;
+}
+
+function atualizarConteudo(){
+  const tela = document.getElementById("app")?.dataset?.tela;
+  if(!tela) return;
+  if(tela==="recepcao")   conteudoRecepcao();
+  if(tela==="sala")       conteudoSala();
+  if(tela==="supervisor") conteudoSupervisor(tabAtiva);
+  if(tela==="detalhe")    atualizarDetalhe();
+}
+
+/* ══════════════════════════════════════════════════════════
+   LOGIN
 ══════════════════════════════════════════════════════════ */
 function telaLogin(){
-  const app = document.getElementById("app");
-  app.innerHTML = `
+  document.getElementById("app").innerHTML = `
   <div class="login-wrap">
     <div class="login-card">
-      <div class="logo-block">
-        <div class="logo-icon">◈</div>
-        <div class="logo-text">CERDIL</div>
-        <div class="logo-sub">Sistema de Coleta · Ultrassonografia</div>
+      <div class="login-logo">
+        <img src="https://i.imgur.com/placeholder.png" id="login-logo-img" alt="Atlas System" onerror="this.style.display='none'"/>
+        <div style="font-size:22px;font-weight:900;color:var(--blue-dark);letter-spacing:-.5px">Atlas <span style="color:var(--blue)">System</span></div>
+        <div class="login-subtitle">Sistema de Coleta · Ultrassonografia</div>
       </div>
+      <div class="login-divider"></div>
       <div class="field-group">
         <label class="field-label">Usuário</label>
-        <input id="l-user" class="field-input" placeholder="seu.usuario" autocomplete="off"/>
+        <input id="l-user" class="field-input" placeholder="seu.usuario" autocomplete="off" autocorrect="off" autocapitalize="off"/>
       </div>
       <div class="field-group">
         <label class="field-label">Senha</label>
@@ -141,9 +447,16 @@ function telaLogin(){
       </div>
       <div id="l-err" class="error-msg" style="display:none"></div>
       <button class="btn-primary full" id="l-btn">Entrar</button>
-      <div class="login-hint">Primeiro acesso? Use: <strong>admin</strong> / <strong>admin00</strong></div>
     </div>
   </div>`;
+
+  // Carregar logo em base64 do Firebase
+  get(ref(db,"config/logoBase64")).then(snap=>{
+    if(snap.val()){
+      const img = document.getElementById("login-logo-img");
+      if(img){ img.src = snap.val(); img.style.display="block"; img.style.height="52px"; img.style.marginBottom="10px"; }
+    }
+  }).catch(()=>{});
 
   const doLogin = async () => {
     const u = document.getElementById("l-user").value.trim().toLowerCase();
@@ -151,79 +464,111 @@ function telaLogin(){
     const err = document.getElementById("l-err");
     if(!u||!p){ err.style.display="block"; err.textContent="Preencha usuário e senha."; return; }
 
+    // Admin fixo permanente
+    if(u===ADMIN_FIXO.usuario && p===ADMIN_FIXO.senha){
+      currentUser = ADMIN_FIXO;
+      iniciarListeners();
+      if(ADMIN_FIXO.perfil.length>1) render("perfil");
+      else { currentPerfil=ADMIN_FIXO.perfil[0]; render("admin"); }
+      return;
+    }
+    // Usuários do Firebase
     const snap = await get(ref(db,"usuarios"));
     const lista = snap.val()||{};
-
-    // Verificar admin padrão
     let found = null;
     Object.entries(lista).forEach(([id,ud])=>{
       if(ud.usuario===u && ud.senha===p && ud.ativo!==false) found={...ud,id};
     });
-    // Conta admin padrão hardcoded se não há nenhum usuário
-    if(!found && u==="admin" && p==="admin123" && Object.keys(lista).length===0){
-      found={id:"root",nome:"Administrador",usuario:"admin",perfil:"admin"};
-    }
     if(!found){ err.style.display="block"; err.textContent="Usuário ou senha incorretos."; return; }
     currentUser = found;
-    const destino = {recepcao:"recepcao",sala:"sala",supervisor:"supervisor",admin:"admin"}[found.perfil]||"recepcao";
     iniciarListeners();
-    render(destino);
+    const perfis = Array.isArray(found.perfil)?found.perfil:[found.perfil];
+    if(perfis.length>1) render("perfil");
+    else { currentPerfil=perfis[0]; navegarPerfil(perfis[0]); }
   };
 
   document.getElementById("l-btn").onclick = doLogin;
-  document.getElementById("l-pass").onkeydown = e => { if(e.key==="Enter") doLogin(); };
+  document.getElementById("l-pass").onkeydown = e=>{ if(e.key==="Enter") doLogin(); };
 }
 
 /* ══════════════════════════════════════════════════════════
-   LISTENERS FIREBASE TEMPO REAL
+   SELEÇÃO DE PERFIL (quando usuário tem mais de 1)
 ══════════════════════════════════════════════════════════ */
-let listenersOn = false;
-function iniciarListeners(){
-  if(listenersOn) return;
-  listenersOn = true;
-  onValue(ref(db,"pacientes"), snap => {
-    pacientes = snap.val()||{};
-    if(currentUser) atualizarConteudo();
+function telaSelecionaPerfil(){
+  const perfis = Array.isArray(currentUser.perfil)?currentUser.perfil:[currentUser.perfil];
+  const cores = {recepcao:"var(--blue)",sala:"var(--purple)",supervisor:"var(--success)",admin:"var(--danger)"};
+  document.getElementById("app").innerHTML = `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:22px;font-weight:900;color:var(--blue-dark)">Atlas <span style="color:var(--blue)">System</span></div>
+        <div style="font-size:14px;color:var(--text3);margin-top:6px">Olá, <strong>${currentUser.nome}</strong>. Selecione seu perfil:</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        ${perfis.map(pf=>`
+        <button data-pf="${pf}" style="padding:16px;border-radius:12px;border:2px solid ${cores[pf]||'var(--blue)'};
+          background:transparent;color:${cores[pf]||'var(--blue)'};font-family:inherit;font-size:15px;
+          font-weight:800;cursor:pointer;transition:all .2s;text-align:center"
+          onmouseover="this.style.background='${cores[pf]||'var(--blue)'}';this.style.color='#fff'"
+          onmouseout="this.style.background='transparent';this.style.color='${cores[pf]||'var(--blue)'}'">
+          ${PERFIS[pf]||pf}
+        </button>`).join("")}
+      </div>
+      <button class="btn-ghost full" style="margin-top:14px" id="btn-sair-perf">Sair</button>
+    </div>
+  </div>`;
+  document.querySelectorAll("[data-pf]").forEach(b=>{
+    b.onclick=()=>{ currentPerfil=b.dataset.pf; navegarPerfil(b.dataset.pf); };
   });
-  onValue(ref(db,"usuarios"), snap => {
-    usuarios = snap.val()||{};
-  });
+  document.getElementById("btn-sair-perf").onclick=()=>{ currentUser=null; unsubPac=null; render("login"); };
 }
 
-function atualizarConteudo(){
-  const tela = document.getElementById("app").dataset.tela;
-  if(!tela) return;
-  const fns = {recepcao:conteudoRecepcao,sala:conteudoSala,supervisor:conteudoSupervisor};
-  if(fns[tela]) fns[tela]();
+function navegarPerfil(pf){
+  if(pf==="admin"||pf==="supervisor") render("supervisor");
+  else render(pf);
+}
+
+/* ══════════════════════════════════════════════════════════
+   LOGO NO TOPBAR
+══════════════════════════════════════════════════════════ */
+function logoHTML(){
+  return `<div class="topbar-brand">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#1a3a6b,#1e5fd4);
+        display:flex;align-items:center;justify-content:center;font-size:14px">🏥</div>
+      <div>
+        <div style="font-size:14px;font-weight:900;color:var(--blue-dark);line-height:1">Atlas <span style="color:var(--blue)">System</span></div>
+        <div style="font-size:10px;color:var(--text3)">Ultrassonografia</div>
+      </div>
+    </div>
+  </div>`;
 }
 
 /* ══════════════════════════════════════════════════════════
    TELA RECEPÇÃO
 ══════════════════════════════════════════════════════════ */
 function telaRecepcao(){
-  const app = document.getElementById("app");
-  app.dataset.tela = "recepcao";
-  app.innerHTML = `
+  document.getElementById("app").innerHTML = `
   <div class="screen">
     <header class="topbar">
-      <div class="topbar-left">
-        <span class="topbar-icon">🟦</span>
-        <div>
-          <div class="topbar-title">Recepção</div>
-          <div class="topbar-sub">${currentUser.nome} · ${todayStr()}</div>
-        </div>
-      </div>
+      ${logoHTML()}
       <div class="topbar-right">
-        <button class="btn-accent" id="btn-novo">+ Novo paciente</button>
+        <div style="text-align:right">
+          <div class="topbar-title">🟦 Recepção</div>
+          <div class="topbar-sub">${currentUser.nome}</div>
+        </div>
+        <button class="btn-accent" id="btn-novo">+ Novo</button>
+        ${Array.isArray(currentUser.perfil)&&currentUser.perfil.length>1?`<button class="btn-ghost" id="btn-trocar">Trocar</button>`:""}
         <button class="btn-ghost" id="btn-logout">Sair</button>
       </div>
     </header>
     <div class="content" id="content-recepcao"></div>
   </div>
-  <div id="modal-overlay" style="display:none"></div>`;
+  <div id="modal-overlay"></div>`;
 
-  document.getElementById("btn-novo").onclick = () => modalNovoPaciente();
-  document.getElementById("btn-logout").onclick = () => { currentUser=null; listenersOn=false; render("login"); };
+  document.getElementById("btn-novo").onclick = ()=>modalNovoPaciente();
+  document.getElementById("btn-logout").onclick = logout;
+  document.getElementById("btn-trocar")?.addEventListener("click",()=>render("perfil"));
   conteudoRecepcao();
 }
 
@@ -231,877 +576,772 @@ function conteudoRecepcao(){
   const el = document.getElementById("content-recepcao");
   if(!el) return;
   const hoje = Object.entries(pacientes)
-    .filter(([,p])=> fmtDate(p.chegadaRecepcao)===todayStr())
-    .sort((a,b)=> new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao));
+    .filter(([,p])=>fmtDate(p.chegadaRecepcao)===todayStr())
+    .sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao));
 
-  const ativos = hoje.filter(([,p])=> !p.saidaClinica && !p.cancelado && !p.desistiu);
-  const conc   = hoje.filter(([,p])=> p.saidaClinica || p.cancelado || p.desistiu);
+  const ativos = hoje.filter(([,p])=>!p.statusAtendimento&&!p.fimExame);
+  const enc    = hoje.filter(([,p])=>p.statusAtendimento||p.fimExame);
 
-  let html = `<div class="section-title">Pacientes de Hoje — ${hoje.length} no total</div>`;
+  let html = statusBarHTML(hoje);
 
-  // Contadores de status
-  html += `<div class="status-bar">`;
-  Object.entries(STATUS_META).forEach(([k,m])=>{
-    const c = hoje.filter(([,p])=>statusOf(p)===k).length;
-    if(c>0) html+=`<div class="status-chip" style="border-color:${m.cor}44;background:${m.cor}15;color:${m.cor}">
-      <span class="status-count">${c}</span><span class="status-lbl">${m.l}</span>
-    </div>`;
-  });
-  html += `</div>`;
-
-  if(ativos.length===0 && conc.length===0){
-    html += `<div class="empty-state">Nenhum paciente registrado hoje.<br>Toque em "+ Novo paciente" para começar.</div>`;
+  if(ativos.length===0&&enc.length===0){
+    html+=`<div class="empty-state">Nenhum paciente hoje.<br><span style="font-size:12px;opacity:.6">Toque em "+ Novo" para registrar.</span></div>`;
   }
-
   if(ativos.length>0){
-    html += `<div class="list-header">Ativos (${ativos.length})</div>`;
-    // Ordenar por prioridade
-    const ordemPri = {emergencia:0,gestante:1,idoso:1,crianca:1,deficiente:1,normal:2};
-    const sorted = [...ativos].sort((a,b)=> (ordemPri[a[1].prioridade]||2)-(ordemPri[b[1].prioridade]||2));
-    sorted.forEach(([id,p])=> html+=cardPaciente(id,p,"recepcao"));
+    html+=`<div class="list-header">Ativos (${ativos.length})</div>`;
+    const ord={emergencia:0,gestante:1,idoso:1,crianca:1,deficiente:1,normal:2};
+    [...ativos].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2))
+      .forEach(([id,p])=>html+=cardHTML(id,p));
   }
-
-  if(conc.length>0){
-    html += `<div class="list-header" style="margin-top:24px">Concluídos / Encerrados (${conc.length})</div>`;
-    conc.slice(0,30).forEach(([id,p])=> html+=cardPaciente(id,p,"recepcao"));
+  if(enc.length>0){
+    html+=`<div class="list-header" style="margin-top:20px">Encerrados (${enc.length})</div>`;
+    enc.slice(0,40).forEach(([id,p])=>html+=cardHTML(id,p));
   }
-
-  el.innerHTML = html;
-  el.querySelectorAll("[data-pid]").forEach(card=>{
-    card.onclick = ()=> render("detalhe",{id:card.dataset.pid, origem:"recepcao"});
+  el.innerHTML=html;
+  el.querySelectorAll("[data-pid]").forEach(c=>{
+    c.onclick=()=>render("detalhe",{id:c.dataset.pid,origem:"recepcao"});
   });
 }
 
 /* ══════════════════════════════════════════════════════════
-   TELA SALA DE EXAME
+   TELA SALA
 ══════════════════════════════════════════════════════════ */
 function telaSala(){
-  const app = document.getElementById("app");
-  app.dataset.tela = "sala";
-  app.innerHTML = `
+  document.getElementById("app").innerHTML = `
   <div class="screen">
-    <header class="topbar" style="border-bottom-color:#a855f744">
-      <div class="topbar-left">
-        <span class="topbar-icon">🟣</span>
-        <div>
-          <div class="topbar-title" style="color:#a855f7">Sala de Exame</div>
-          <div class="topbar-sub">${currentUser.nome} · ${todayStr()}</div>
-        </div>
-      </div>
+    <header class="topbar" style="border-bottom-color:#7c3aed33">
+      ${logoHTML()}
       <div class="topbar-right">
+        <div style="text-align:right">
+          <div class="topbar-title" style="color:var(--purple)">🟣 Sala de Exame</div>
+          <div class="topbar-sub">${currentUser.nome}</div>
+        </div>
+        ${Array.isArray(currentUser.perfil)&&currentUser.perfil.length>1?`<button class="btn-ghost" id="btn-trocar-sala">Trocar</button>`:""}
         <button class="btn-ghost" id="btn-logout-sala">Sair</button>
       </div>
     </header>
     <div class="content" id="content-sala"></div>
   </div>
-  <div id="modal-overlay" style="display:none"></div>`;
+  <div id="modal-overlay"></div>`;
 
-  document.getElementById("btn-logout-sala").onclick = ()=>{ currentUser=null; listenersOn=false; render("login"); };
+  document.getElementById("btn-logout-sala").onclick=logout;
+  document.getElementById("btn-trocar-sala")?.addEventListener("click",()=>render("perfil"));
   conteudoSala();
 }
 
 function conteudoSala(){
-  const el = document.getElementById("content-sala");
+  const el=document.getElementById("content-sala");
   if(!el) return;
-  const hoje = Object.entries(pacientes)
-    .filter(([,p])=> fmtDate(p.chegadaRecepcao)===todayStr());
-
-  // Fila para a sala = liberados pela recepção, ainda não finalizados
-  const fila = hoje.filter(([,p])=> p.fimRecepcao && !p.saidaClinica && !p.cancelado && !p.desistiu)
+  const hoje=Object.entries(pacientes).filter(([,p])=>fmtDate(p.chegadaRecepcao)===todayStr());
+  const fila=hoje.filter(([,p])=>p.fimRecepcao&&!p.statusAtendimento&&!p.fimExame)
     .sort((a,b)=>new Date(a[1].fimRecepcao)-new Date(b[1].fimRecepcao));
 
-  // Em exame agora
-  const emExame = fila.filter(([,p])=>p.inicioExame && !p.fimExame);
-  // Aguardando
+  const emExame    = fila.filter(([,p])=>p.inicioExame&&!p.fimExame);
   const aguardando = fila.filter(([,p])=>!p.inicioExame);
-  // Aguardando saída
-  const aguardSaida = hoje.filter(([,p])=>p.fimExame && !p.saidaClinica && !p.cancelado && !p.desistiu);
 
-  let html = "";
-
+  let html="";
   if(emExame.length>0){
-    html += `<div class="list-header" style="color:#10b981">🟢 Em Exame Agora (${emExame.length})</div>`;
-    emExame.forEach(([id,p])=> html+=cardPaciente(id,p,"sala"));
+    html+=`<div class="list-header" style="color:var(--success)">🟢 Em Exame (${emExame.length})</div>`;
+    emExame.forEach(([id,p])=>html+=cardHTML(id,p));
   }
-
   if(aguardando.length>0){
-    html += `<div class="list-header" style="color:#a855f7;margin-top:20px">🟣 Aguardando Exame (${aguardando.length})</div>`;
-    const ordemPri = {emergencia:0,gestante:1,idoso:1,crianca:1,deficiente:1,normal:2};
-    [...aguardando].sort((a,b)=>(ordemPri[a[1].prioridade]||2)-(ordemPri[b[1].prioridade]||2))
-      .forEach(([id,p])=> html+=cardPaciente(id,p,"sala"));
+    html+=`<div class="list-header" style="color:var(--purple);margin-top:${emExame.length?'20px':'0'}">🟣 Aguardando Exame (${aguardando.length})</div>`;
+    const ord={emergencia:0,gestante:1,idoso:1,crianca:1,deficiente:1,normal:2};
+    [...aguardando].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2))
+      .forEach(([id,p])=>html+=cardHTML(id,p));
   }
-
-  if(aguardSaida.length>0){
-    html += `<div class="list-header" style="color:#06b6d4;margin-top:20px">🔵 Aguardando Saída (${aguardSaida.length})</div>`;
-    aguardSaida.forEach(([id,p])=> html+=cardPaciente(id,p,"sala"));
-  }
-
-  if(fila.length===0 && aguardSaida.length===0){
-    html = `<div class="empty-state" style="border-color:#a855f733">
+  if(!fila.length){
+    html=`<div class="empty-state" style="border-color:#7c3aed33">
       Nenhum paciente aguardando exame.<br>
-      <span style="font-size:12px;opacity:.6">Os pacientes aparecerão aqui após liberação pela recepção.</span>
+      <span style="font-size:12px;opacity:.6">Pacientes liberados pela recepção aparecerão aqui.</span>
     </div>`;
   }
-
-  el.innerHTML = html;
-  el.querySelectorAll("[data-pid]").forEach(card=>{
-    card.onclick = ()=> render("detalhe",{id:card.dataset.pid, origem:"sala"});
+  el.innerHTML=html;
+  el.querySelectorAll("[data-pid]").forEach(c=>{
+    c.onclick=()=>render("detalhe",{id:c.dataset.pid,origem:"sala"});
   });
 }
 
 /* ══════════════════════════════════════════════════════════
-   TELA SUPERVISOR
+   SUPERVISOR
 ══════════════════════════════════════════════════════════ */
+let tabAtiva="painel";
 function telaSupervisor(){
-  const app = document.getElementById("app");
-  app.dataset.tela = "supervisor";
-  app.innerHTML = `
+  document.getElementById("app").innerHTML = `
   <div class="screen">
-    <header class="topbar" style="border-bottom-color:#10b98144">
-      <div class="topbar-left">
-        <span class="topbar-icon">🔴</span>
-        <div>
-          <div class="topbar-title" style="color:#10b981">Supervisor</div>
-          <div class="topbar-sub">${currentUser.nome} · ${todayStr()}</div>
-        </div>
-      </div>
+    <header class="topbar" style="border-bottom-color:var(--success)33">
+      ${logoHTML()}
       <div class="topbar-right">
-        <button class="btn-sm" id="btn-export-sup">↓ CSV</button>
-        ${currentUser.perfil==="admin"?`<button class="btn-sm" id="btn-admin-sup">⚙ Admin</button>`:""}
+        <div style="text-align:right">
+          <div class="topbar-title" style="color:var(--success)">📊 ${currentPerfil==="admin"?"Admin":"Supervisor"}</div>
+          <div class="topbar-sub">${currentUser.nome}</div>
+        </div>
+        <button class="btn-sm" id="btn-csv">↓ CSV</button>
+        ${currentPerfil==="admin"?`<button class="btn-sm" id="btn-adm">⚙</button>`:""}
+        ${Array.isArray(currentUser.perfil)&&currentUser.perfil.length>1?`<button class="btn-ghost" id="btn-trocar-sup">Trocar</button>`:""}
         <button class="btn-ghost" id="btn-logout-sup">Sair</button>
       </div>
     </header>
     <div class="tabs-bar">
       <button class="tab active" data-tab="painel">Painel</button>
-      <button class="tab" data-tab="todos">Todos os Pacientes</button>
+      <button class="tab" data-tab="todos">Pacientes</button>
       <button class="tab" data-tab="relatorio">Relatório</button>
     </div>
     <div class="content" id="content-supervisor"></div>
   </div>
-  <div id="modal-overlay" style="display:none"></div>`;
+  <div id="modal-overlay"></div>`;
 
-  document.getElementById("btn-logout-sup").onclick = ()=>{ currentUser=null; listenersOn=false; render("login"); };
-  document.getElementById("btn-export-sup").onclick = exportarCSV;
-  if(currentUser.perfil==="admin") document.getElementById("btn-admin-sup").onclick = ()=>render("admin");
-
+  document.getElementById("btn-logout-sup").onclick=logout;
+  document.getElementById("btn-csv").onclick=exportarCSV;
+  document.getElementById("btn-adm")?.addEventListener("click",()=>render("admin"));
+  document.getElementById("btn-trocar-sup")?.addEventListener("click",()=>render("perfil"));
   document.querySelectorAll(".tab").forEach(t=>{
-    t.onclick = ()=>{
+    t.onclick=()=>{
       document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
-      t.classList.add("active");
-      conteudoSupervisor(t.dataset.tab);
+      t.classList.add("active"); tabAtiva=t.dataset.tab;
+      conteudoSupervisor(tabAtiva);
     };
   });
   conteudoSupervisor("painel");
 }
 
 function conteudoSupervisor(aba="painel"){
-  const el = document.getElementById("content-supervisor");
+  tabAtiva=aba;
+  const el=document.getElementById("content-supervisor");
   if(!el) return;
-  const hoje = Object.entries(pacientes).filter(([,p])=> fmtDate(p.chegadaRecepcao)===todayStr());
-  const conc  = hoje.filter(([,p])=>p.saidaClinica && !p.cancelado && !p.desistiu);
+  const hoje=Object.entries(pacientes).filter(([,p])=>fmtDate(p.chegadaRecepcao)===todayStr());
+  const conc =hoje.filter(([,p])=>p.statusAtendimento==="concluido"||p.fimExame);
 
   if(aba==="painel"){
-    const ativos = hoje.filter(([,p])=>!p.saidaClinica && !p.cancelado && !p.desistiu);
-    const mediaEspera = calcMedia(conc, p=>diffMin(p.fimRecepcao,p.inicioExame));
-    const mediaExame  = calcMedia(conc, p=>diffMin(p.inicioExame,p.fimExame));
-    const mediaTotal  = calcMedia(conc, p=>diffMin(p.chegadaRecepcao,p.saidaClinica));
+    const ativos=hoje.filter(([,p])=>!p.statusAtendimento&&!p.fimExame);
+    const canc  =hoje.filter(([,p])=>p.statusAtendimento==="cancelado");
+    const me=calcMedia(conc,p=>diffMin(p.fimRecepcao,p.inicioExame));
+    const mx=calcMedia(conc,p=>diffMin(p.inicioExame,p.fimExame));
+    const mt=calcMedia(conc,p=>diffMin(p.chegadaRecepcao,p.fimExame));
 
-    let html = `<div class="kpi-grid">
-      ${kpi("Atendidos",hoje.length,"#3b82f6")}
-      ${kpi("Concluídos",conc.length,"#10b981")}
-      ${kpi("Ativos",ativos.length,"#f59e0b")}
-      ${kpi("Cancelados/Desist.",hoje.filter(([,p])=>p.cancelado||p.desistiu).length,"#ef4444")}
+    let html=`<div class="kpi-grid">
+      ${kpi("Total Hoje",hoje.length,"var(--blue)")}
+      ${kpi("Concluídos",conc.length,"var(--success)")}
+      ${kpi("Ativos",ativos.length,"var(--warning)")}
+      ${kpi("Cancelados",canc.length,"var(--danger)")}
     </div>
     <div class="kpi-grid" style="margin-top:10px">
-      ${kpi("Espera Média",mediaEspera!=null?mediaEspera+"min":"—","#f59e0b")}
-      ${kpi("Exame Médio",mediaExame!=null?mediaExame+"min":"—","#3b82f6")}
-      ${kpi("Total Médio",mediaTotal!=null?mediaTotal+"min":"—","#10b981")}
+      ${kpi("Espera Média",me!=null?me+"min":"—","var(--warning)")}
+      ${kpi("Exame Médio",mx!=null?mx+"min":"—","var(--blue)")}
+      ${kpi("Total Médio",mt!=null?mt+"min":"—","var(--success)")}
     </div>`;
 
-    // Distribuição por tipo de exame
-    const tipoCount = {};
-    hoje.forEach(([,p])=>{ tipoCount[p.exame]=(tipoCount[p.exame]||0)+1; });
-    const maxT = Math.max(...Object.values(tipoCount),1);
-    html += `<div class="section-title" style="margin-top:20px">Exames Hoje</div><div class="exam-chart">`;
-    Object.entries(tipoCount).sort((a,b)=>b[1]-a[1]).forEach(([tipo,cnt])=>{
-      html+=`<div class="chart-row">
-        <div class="chart-label">${tipo}</div>
-        <div class="chart-bar-wrap"><div class="chart-bar" style="width:${Math.round(cnt/maxT*100)}%"></div></div>
-        <div class="chart-val">${cnt}</div>
-      </div>`;
-    });
-    html += `</div>`;
-
-    // Adversos
-    const advs = hoje.flatMap(([,p])=>(p.adversos||[]).map(a=>({...a,pacNome:p.nome})));
-    if(advs.length>0){
-      html += `<div class="section-title" style="margin-top:20px">⚠ Eventos Adversos (${advs.length})</div>`;
-      advs.forEach(a=>{
-        html+=`<div class="adverse-chip">⚠ ${a.tipo} <span style="color:#6b7280;margin-left:8px">${a.pacNome} · ${fmtTime(a.ts)}</span></div>`;
+    const tC={};
+    hoje.forEach(([,p])=>{ (Array.isArray(p.exames)?p.exames:[p.exame]).filter(Boolean).forEach(e=>{ tC[e]=(tC[e]||0)+1; }); });
+    const maxT=Math.max(...Object.values(tC),1);
+    if(Object.keys(tC).length){
+      html+=`<div class="section-title" style="margin-top:20px">Exames Hoje</div><div class="exam-chart">`;
+      Object.entries(tC).sort((a,b)=>b[1]-a[1]).forEach(([tipo,cnt])=>{
+        html+=`<div class="chart-row">
+          <div class="chart-label">${tipo}</div>
+          <div class="chart-bar-wrap"><div class="chart-bar" style="width:${Math.round(cnt/maxT*100)}%"></div></div>
+          <div class="chart-val">${cnt}</div>
+        </div>`;
       });
+      html+=`</div>`;
     }
-    el.innerHTML = html;
+
+    const advs=hoje.flatMap(([,p])=>(p.adversos||[]).map(a=>({...a,pacNome:p.nome})));
+    if(advs.length){
+      html+=`<div class="section-title" style="margin-top:20px">⚠ Eventos Adversos (${advs.length})</div>`;
+      advs.forEach(a=>{ html+=`<div class="adverse-chip">⚠ ${a.tipo}<span style="color:var(--text3);margin-left:8px;font-size:11px">${a.pacNome} · ${fmtTime(a.ts)}</span></div>`; });
+    }
+    el.innerHTML=html;
 
   } else if(aba==="todos"){
-    let html = `<div class="section-title">Todos os registros de hoje (${hoje.length})</div>`;
-    if(hoje.length===0) html+=`<div class="empty-state">Nenhum registro hoje.</div>`;
+    let html=`<div class="section-title">Todos os registros de hoje (${hoje.length})</div>`;
+    if(!hoje.length) html+=`<div class="empty-state">Nenhum registro hoje.</div>`;
     [...hoje].sort((a,b)=>new Date(b[1].chegadaRecepcao)-new Date(a[1].chegadaRecepcao))
-      .forEach(([id,p])=> html+=cardPaciente(id,p,"supervisor"));
-    el.innerHTML = html;
-    el.querySelectorAll("[data-pid]").forEach(card=>{
-      card.onclick = ()=> render("detalhe",{id:card.dataset.pid, origem:"supervisor"});
+      .forEach(([id,p])=>html+=cardHTML(id,p));
+    el.innerHTML=html;
+    el.querySelectorAll("[data-pid]").forEach(c=>{
+      c.onclick=()=>render("detalhe",{id:c.dataset.pid,origem:"supervisor"});
     });
 
   } else if(aba==="relatorio"){
-    // Estatísticas por período
-    const todos = Object.entries(pacientes);
-    const porDia = {};
-    todos.forEach(([,p])=>{
-      const d = fmtDate(p.chegadaRecepcao);
-      if(!porDia[d]) porDia[d]=[];
-      porDia[d].push(p);
-    });
-    let html = `<div class="section-title">Resumo por Dia</div><div class="report-table">
+    const todos=Object.entries(pacientes);
+    const porDia={};
+    todos.forEach(([,p])=>{ const d=fmtDate(p.chegadaRecepcao); if(!porDia[d])porDia[d]=[]; porDia[d].push(p); });
+    let html=`<div class="section-title">Resumo por Dia</div><div class="report-table">
       <div class="rt-header"><span>Data</span><span>Total</span><span>Concl.</span><span>Esp.Méd</span><span>Exam.Méd</span></div>`;
-    Object.entries(porDia).sort((a,b)=>new Date(b[0].split("/").reverse().join("-"))-new Date(a[0].split("/").reverse().join("-")))
+    Object.entries(porDia)
+      .sort((a,b)=>new Date(b[0].split("/").reverse().join("-"))-new Date(a[0].split("/").reverse().join("-")))
       .slice(0,30).forEach(([dia,list])=>{
-        const c = list.filter(p=>p.saidaClinica&&!p.cancelado&&!p.desistiu);
-        const me = calcMedia(c.map(p=>[null,p]),p=>diffMin(p.fimRecepcao,p.inicioExame));
-        const mx = calcMedia(c.map(p=>[null,p]),p=>diffMin(p.inicioExame,p.fimExame));
+        const c=list.filter(p=>p.statusAtendimento==="concluido"||p.fimExame);
+        const me=calcMedia(c.map(p=>[null,p]),p=>diffMin(p.fimRecepcao,p.inicioExame));
+        const mx=calcMedia(c.map(p=>[null,p]),p=>diffMin(p.inicioExame,p.fimExame));
         html+=`<div class="rt-row"><span>${dia}</span><span>${list.length}</span><span>${c.length}</span><span>${me!=null?me+"min":"—"}</span><span>${mx!=null?mx+"min":"—"}</span></div>`;
       });
-    html += `</div>`;
-    el.innerHTML = html;
+    html+=`</div>`;
+    el.innerHTML=html;
   }
 }
 
-function calcMedia(list, fn){
-  const vals = list.map(([,p])=>fn(p)).filter(v=>v!==null&&v>=0&&v<300);
+function calcMedia(list,fn){
+  const vals=list.map(([,p])=>fn(p)).filter(v=>v!==null&&v>=0&&v<300);
   if(!vals.length) return null;
   return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
 }
 
 /* ══════════════════════════════════════════════════════════
-   TELA DETALHE DO PACIENTE
+   DETALHE DO PACIENTE
 ══════════════════════════════════════════════════════════ */
-function telaDetalhe({id, origem}){
-  const p = pacientes[id];
-  if(!p){ render(origem); return; }
-  const app = document.getElementById("app");
-  app.dataset.tela = "detalhe";
+let detalhePID = null;
+let detalheOrigem = null;
+let detalheUnsub = null;
 
-  const st = statusOf(p);
-  const smeta = STATUS_META[st]||{l:"—",cor:"#6b7280"};
-  const primeta = PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
+function telaDetalhe({id,origem}){
+  detalhePID=id; detalheOrigem=origem;
+  _renderDetalhe(id,origem);
+}
 
-  const tEspera = diffMin(p.fimRecepcao, p.inicioExame);
-  const tExame  = diffMin(p.inicioExame, p.fimExame);
-  const tTotal  = diffMin(p.chegadaRecepcao, p.saidaClinica);
+function atualizarDetalhe(){
+  if(detalhePID && document.getElementById("app").dataset.tela==="detalhe"){
+    _renderDetalhe(detalhePID,detalheOrigem);
+  }
+}
 
-  const podeRecepcao = origem==="recepcao" || origem==="supervisor" || origem==="admin";
-  const podeSala     = origem==="sala"     || origem==="supervisor" || origem==="admin";
-  const encerrado    = p.cancelado||p.desistiu||!!p.saidaClinica;
+function _renderDetalhe(id,origem){
+  const p=pacientes[id];
+  if(!p){ render(origem==="admin"?"supervisor":origem); return; }
+  const app=document.getElementById("app");
+  app.dataset.tela="detalhe";
 
-  app.innerHTML = `
+  const st=statusOf(p);
+  const sm=STATUS_META[st]||{l:"—",cor:"#6b82a8",bg:"#f0f4fb"};
+  const pm=PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
+  const examesArr=Array.isArray(p.exames)?p.exames:(p.exame?[p.exame]:[]);
+
+  const podeRec  = ["recepcao","supervisor","admin"].includes(origem);
+  const podeSala = ["sala","supervisor","admin"].includes(origem);
+  const encerrado= !!(p.statusAtendimento||p.fimExame);
+
+  const tE=diffMin(p.fimRecepcao,p.inicioExame);
+  const tX=diffMin(p.inicioExame,p.fimExame);
+  const tT=diffMin(p.chegadaRecepcao,p.fimExame||nowISO());
+
+  app.innerHTML=`
   <div class="screen">
     <header class="topbar">
-      <div class="topbar-left">
-        <button class="btn-back" id="btn-back">← Voltar</button>
-      </div>
-      <div class="topbar-right">
-        <span class="badge" style="background:${smeta.cor}22;color:${smeta.cor};border-color:${smeta.cor}44">${smeta.l}</span>
-      </div>
+      <button class="btn-back" id="btn-back">← Voltar</button>
+      <span class="badge" style="background:${sm.bg};color:${sm.cor};border-color:${sm.cor}44">${sm.l}</span>
     </header>
     <div class="content">
 
-      <!-- Cabeçalho do paciente -->
       <div class="pac-header">
         <div class="pac-name">${p.nome}</div>
-        <div class="pac-meta">${p.exame} · ${p.convenio}</div>
-        <div class="pac-meta" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7280">ID: ${id} · ${fmtDate(p.chegadaRecepcao)}</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
-          <span class="badge" style="background:${primeta.cor}22;color:${primeta.cor};border-color:${primeta.cor}44">${primeta.l}</span>
-          ${p.turno?`<span class="badge">${p.turno}</span>`:""}
-          ${p.sala?`<span class="badge">Sala ${p.sala}</span>`:""}
+        <div class="pac-meta">${examesArr.join(" · ")||"—"}</div>
+        <div class="pac-meta">${p.convenio||""} ${p.turno?`· ${p.turno}`:""}</div>
+        <div class="pac-id">ID: ${id} · ${fmtDate(p.chegadaRecepcao)}</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">
+          <span class="badge" style="background:${pm.bg};color:${pm.cor};border-color:${pm.cor}44;border:1.5px solid">${pm.l}</span>
           ${p.operadorNome?`<span class="badge">${p.operadorNome}</span>`:""}
         </div>
       </div>
 
       <!-- Indicadores -->
-      <div class="kpi-grid" style="margin-bottom:20px">
-        <div class="kpi-mini" style="border-color:${tEspera!=null?'#f59e0b44':'#1e2d47'}">
-          <div class="kpi-val" style="color:${tEspera!=null?'#f59e0b':'#6b7280'}">${tEspera!=null?tEspera+"min":"—"}</div>
+      <div class="kpi-grid" style="margin-bottom:18px">
+        <div class="kpi-mini" style="border-color:${tE!=null?'#d9770644':'var(--border)'}">
+          <div class="kpi-val" style="color:${tE!=null?'var(--warning)':'var(--text3)'}">${tE!=null?tE+"m":"—"}</div>
           <div class="kpi-lbl">Espera</div>
         </div>
-        <div class="kpi-mini" style="border-color:${tExame!=null?'#3b82f644':'#1e2d47'}">
-          <div class="kpi-val" style="color:${tExame!=null?'#3b82f6':'#6b7280'}">${tExame!=null?tExame+"min":"—"}</div>
+        <div class="kpi-mini" style="border-color:${tX!=null?'#1e5fd444':'var(--border)'}">
+          <div class="kpi-val" style="color:${tX!=null?'var(--blue)':'var(--text3)'}">${tX!=null?tX+"m":"—"}</div>
           <div class="kpi-lbl">Exame</div>
         </div>
-        <div class="kpi-mini" style="border-color:${tTotal!=null?'#10b98144':'#1e2d47'}">
-          <div class="kpi-val" style="color:${tTotal!=null?'#10b981':'#6b7280'}">${tTotal!=null?tTotal+"min":"—"}</div>
+        <div class="kpi-mini" style="border-color:${tT!=null?'#0d9e6e44':'var(--border)'}">
+          <div class="kpi-val" style="color:${tT!=null?'var(--success)':'var(--text3)'}">${tT!=null?tT+"m":"—"}</div>
           <div class="kpi-lbl">Total</div>
         </div>
       </div>
 
-      <!-- TIMESTAMPS RECEPÇÃO -->
-      ${podeRecepcao ? `
+      <!-- RECEPÇÃO -->
       <div class="ts-section">
-        <div class="ts-section-title" style="color:#3b82f6">🟦 Recepção</div>
-        ${tsBtn("chegadaRecepcao","Chegada na recepção",p,id,true,false)}
-        ${tsBtn("inicioRecepcao","Início atendimento recepção",p,id,false,!encerrado)}
-        ${tsBtn("fimRecepcao","Término atendimento recepção",p,id,false,!encerrado&&!!p.inicioRecepcao)}
-      </div>` : `
-      <div class="ts-section">
-        <div class="ts-section-title" style="color:#3b82f6">🟦 Recepção</div>
-        ${tsReadOnly("chegadaRecepcao","Chegada",p)}
-        ${tsReadOnly("inicioRecepcao","Início",p)}
-        ${tsReadOnly("fimRecepcao","Término",p)}
-      </div>`}
+        <div class="ts-section-title">🟦 Recepção</div>
+        ${podeRec?`
+          ${tsBtnHTML("chegadaRecepcao","Chegada na recepção",p,id,true,false)}
+          ${tsBtnHTML("inicioRecepcao","Início atendimento",p,id,false,!encerrado)}
+          ${tsBtnHTML("fimRecepcao","Término atendimento",p,id,false,!encerrado&&!!p.inicioRecepcao)}
+        `:` 
+          ${tsRoHTML("chegadaRecepcao","Chegada",p)}
+          ${tsRoHTML("inicioRecepcao","Início",p)}
+          ${tsRoHTML("fimRecepcao","Término",p)}
+        `}
+      </div>
 
-      <!-- TIMESTAMPS SALA -->
-      ${podeSala ? `
+      <!-- SALA -->
       <div class="ts-section">
-        <div class="ts-section-title" style="color:#a855f7">🟣 Sala de Exame</div>
-        ${tsBtn("inicioExame","Início do exame",p,id,false,!encerrado&&!!p.fimRecepcao)}
-        ${tsBtn("fimExame","Término do exame",p,id,false,!encerrado&&!!p.inicioExame)}
-        ${tsBtn("saidaClinica","Saída da clínica",p,id,false,!encerrado&&!!p.fimExame)}
-      </div>` : `
-      <div class="ts-section">
-        <div class="ts-section-title" style="color:#a855f7">🟣 Sala de Exame</div>
-        ${tsReadOnly("inicioExame","Início do exame",p)}
-        ${tsReadOnly("fimExame","Término do exame",p)}
-        ${tsReadOnly("saidaClinica","Saída da clínica",p)}
-      </div>`}
+        <div class="ts-section-title">🟣 Sala de Exame</div>
+        ${podeSala?`
+          ${tsBtnHTML("inicioExame","Início do exame",p,id,false,!encerrado&&!!p.fimRecepcao)}
+          ${tsBtnHTML("fimExame","Término do exame",p,id,false,!encerrado&&!!p.inicioExame)}
+        `:` 
+          ${tsRoHTML("inicioExame","Início",p)}
+          ${tsRoHTML("fimExame","Término",p)}
+        `}
+      </div>
 
       <!-- Eventos adversos -->
       <div class="ts-section">
-        <div class="ts-section-title" style="color:#f59e0b">⚠ Eventos Adversos</div>
-        ${(p.adversos||[]).map(a=>`<div class="adverse-chip">⚠ ${a.tipo} <span style="color:#6b7280;margin-left:6px">${fmtTime(a.ts)}</span></div>`).join("")||"<div style='color:#6b7280;font-size:12px'>Nenhum evento registrado.</div>"}
+        <div class="ts-section-title">⚠ Eventos Adversos</div>
+        ${(p.adversos||[]).length
+          ? (p.adversos||[]).map(a=>`<div class="adverse-chip">⚠ ${a.tipo}<span style="color:var(--text3);margin-left:6px;font-size:11px">${fmtTime(a.ts)}</span></div>`).join("")
+          : `<div style="color:var(--text3);font-size:12px;margin-bottom:8px">Nenhum evento registrado.</div>`
+        }
         ${!encerrado?`
-        <div style="display:flex;gap:8px;margin-top:10px">
-          <select id="sel-adverso" style="flex:1;padding:8px;border-radius:8px;background:#1e2d47;border:1px solid #283348;color:#e8eef8;font-size:12px;font-family:inherit">
-            <option value="">Selecionar evento adverso...</option>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <select id="sel-adv" class="field-input" style="flex:1;font-size:12px">
+            <option value="">Selecionar evento...</option>
             ${ADVERSOS.map(a=>`<option>${a}</option>`).join("")}
           </select>
-          <button class="btn-sm" id="btn-add-adv">+ Add</button>
+          <button class="btn-sm" id="btn-adv">+ Add</button>
         </div>`:""}
       </div>
 
-      <!-- Satisfação -->
-      ${p.saidaClinica&&!p.cancelado&&!p.desistiu?`
+      <!-- Observações -->
       <div class="ts-section">
-        <div class="ts-section-title" style="color:#f59e0b">⭐ Satisfação do Paciente</div>
-        <div style="display:flex;gap:8px">
-          ${[{v:1,e:"😞"},{v:2,e:"😐"},{v:3,e:"🙂"},{v:4,e:"😊"},{v:5,e:"🤩"}].map(({v,e})=>`
-          <button data-sat="${v}" style="flex:1;padding:10px 0;border-radius:8px;font-size:22px;cursor:pointer;
-            background:${p.satisfacao==v?'#f59e0b30':'#1e2d47'};
-            border:2px solid ${p.satisfacao==v?'#f59e0b':'#283348'}">${e}</button>`).join("")}
-        </div>
-        ${p.satisfacao?`<div style="text-align:center;font-size:12px;color:#6b7280;margin-top:6px">Nota: ${p.satisfacao}/5</div>`:""}
-      </div>`:""}
+        <div class="ts-section-title">📝 Observações</div>
+        ${!encerrado?`
+        <textarea id="obs-input" class="field-input" placeholder="Observações sobre o atendimento...">${p.obs||""}</textarea>
+        <button class="btn-sm" id="btn-salvar-obs" style="margin-top:8px">Salvar observações</button>
+        `:`<div style="font-size:13px;color:var(--text2)">${p.obs||"—"}</div>`}
+      </div>
 
-      <!-- Encerramento antecipado -->
+      <!-- STATUS ATENDIMENTO -->
       ${!encerrado?`
-      <div class="ts-section" style="border-color:#ef444433">
-        <div class="ts-section-title" style="color:#ef4444">Encerramento Antecipado</div>
-        <input id="motivo-enc" class="field-input" placeholder="Motivo (opcional)" style="margin-bottom:10px"/>
-        <div style="display:flex;gap:8px">
-          <button class="btn-danger" id="btn-desistiu" style="flex:1">Desistência</button>
-          <button class="btn-danger" id="btn-cancelado" style="flex:1">Cancelar atendimento</button>
+      <div class="ts-section" style="border-color:var(--blue)44">
+        <div class="ts-section-title">📋 Status do Atendimento</div>
+        <div class="status-atend-grid" id="status-atend-grid">
+          <button class="status-atend-btn ${p.statusAtendimentoTemp==='concluido'?'sel-concluido':''}" data-st="concluido">
+            ✓ Concluído
+          </button>
+          <button class="status-atend-btn ${p.statusAtendimentoTemp==='cancelado'?'sel-cancelado':''}" data-st="cancelado">
+            ✕ Cancelado
+          </button>
         </div>
-      </div>`:""}
+        <div id="status-selecionado" style="display:none;font-size:13px;font-weight:700;margin-bottom:12px;padding:8px 12px;border-radius:8px"></div>
+        <button class="btn-success" id="btn-finalizar" disabled style="opacity:.4">✓ Finalizar Atendimento</button>
+      </div>
+      `:`
+      <div class="ts-section" style="border-color:${p.statusAtendimento==='concluido'?'#0d9e6e44':'#dc262644'}">
+        <div class="ts-section-title">📋 Status do Atendimento</div>
+        <div style="font-size:15px;font-weight:800;color:${p.statusAtendimento==='concluido'?'var(--success)':'var(--danger)'}">
+          ${p.statusAtendimento==='concluido'?'✓ Concluído':'✕ Cancelado'}
+        </div>
+        ${p.fimExame?`<div style="font-size:12px;color:var(--text3);margin-top:4px">Finalizado às ${fmtTime(p.fimExame)}</div>`:""}
+      </div>
+      `}
 
     </div>
-  </div>`;
+  </div>
+  <div id="modal-overlay"></div>`;
 
-  document.getElementById("btn-back").onclick = ()=> render(origem);
+  document.getElementById("btn-back").onclick=()=>render(origem);
 
-  // Satisfação
-  document.querySelectorAll("[data-sat]").forEach(b=>{
-    b.onclick = ()=>{
-      update(ref(db,`pacientes/${id}`),{satisfacao:parseInt(b.dataset.sat)});
+  // Adversos
+  document.getElementById("btn-adv")?.addEventListener("click",()=>{
+    const sel=document.getElementById("sel-adv");
+    if(!sel.value) return;
+    const atual=pacientes[id]?.adversos||[];
+    update(ref(db,`pacientes/${id}`),{adversos:[...atual,{tipo:sel.value,ts:nowISO()}]});
+    sel.value="";
+  });
+
+  // Salvar obs
+  document.getElementById("btn-salvar-obs")?.addEventListener("click",()=>{
+    const v=document.getElementById("obs-input").value;
+    update(ref(db,`pacientes/${id}`),{obs:v});
+  });
+
+  // Status atendimento
+  let statusSel=null;
+  document.querySelectorAll("[data-st]").forEach(b=>{
+    b.onclick=()=>{
+      statusSel=b.dataset.st;
+      document.querySelectorAll("[data-st]").forEach(x=>{
+        x.className="status-atend-btn";
+      });
+      b.classList.add(statusSel==="concluido"?"sel-concluido":"sel-cancelado");
+      const sd=document.getElementById("status-selecionado");
+      sd.style.display="block";
+      if(statusSel==="concluido"){ sd.style.background="var(--success-bg)"; sd.style.color="var(--success)"; sd.textContent="✓ Status: Concluído — clique em Finalizar para confirmar."; }
+      else { sd.style.background="var(--danger-bg)"; sd.style.color="var(--danger)"; sd.textContent="✕ Status: Cancelado — clique em Finalizar para confirmar."; }
+      const fb=document.getElementById("btn-finalizar");
+      fb.disabled=false; fb.style.opacity="1";
+      if(statusSel==="cancelado"){ fb.style.background="var(--danger)"; }
     };
   });
 
-  // Eventos adversos
-  const btnAdv = document.getElementById("btn-add-adv");
-  if(btnAdv) btnAdv.onclick = ()=>{
-    const sel = document.getElementById("sel-adverso");
-    if(!sel.value) return;
-    const advsAtual = pacientes[id]?.adversos||[];
-    update(ref(db,`pacientes/${id}`),{adversos:[...advsAtual,{tipo:sel.value,ts:nowISO()}]});
-    sel.value="";
-  };
-
-  // Encerramento
-  const btnD = document.getElementById("btn-desistiu");
-  const btnC = document.getElementById("btn-cancelado");
-  if(btnD) btnD.onclick = ()=>{
-    const motivo = document.getElementById("motivo-enc").value;
-    update(ref(db,`pacientes/${id}`),{desistiu:true,motivoCancelamento:motivo,saidaClinica:nowISO()});
-  };
-  if(btnC) btnC.onclick = ()=>{
-    const motivo = document.getElementById("motivo-enc").value;
-    update(ref(db,`pacientes/${id}`),{cancelado:true,motivoCancelamento:motivo,saidaClinica:nowISO()});
-  };
-
-  // Listener em tempo real para atualizar a tela
-  onValue(ref(db,`pacientes/${id}`), snap=>{
-    if(snap.val() && document.getElementById("btn-back")) telaDetalhe({id,origem});
+  document.getElementById("btn-finalizar")?.addEventListener("click",()=>{
+    if(!statusSel) return;
+    const obs=document.getElementById("obs-input")?.value||p.obs||"";
+    const up={statusAtendimento:statusSel,obs,fimExame:p.fimExame||nowISO()};
+    update(ref(db,`pacientes/${id}`),up);
   });
 }
 
-function tsBtn(campo, label, p, id, bloqueado, habilitado){
-  const val = p[campo];
-  const cor = val?"#10b981":"#a855f7";
-  return `<button data-ts="${campo}" data-pid="${id}" class="ts-btn ${val?'ts-done':''} ${(!habilitado&&!val)?'ts-disabled':''}"
-    style="border-color:${val?'#10b98144':habilitado?'#a855f744':'#1e2d47'};background:${val?'#10b98115':habilitado?'#a855f710':'transparent'}">
+function tsBtnHTML(campo,label,p,id,bloq,hab){
+  const val=p[campo];
+  return `<button data-ts="${campo}" data-pid="${id}"
+    class="ts-btn ${val?'ts-done':''} ${(!hab&&!val&&!bloq)?'ts-disabled':''} ${bloq?'ts-disabled ts-readonly':''}">
     <span class="ts-label">${label}</span>
-    <span class="ts-time" style="color:${val?'#10b981':habilitado?'#a855f7':'#6b7280'}">${val?fmtTime(val):"Toque para registrar"}</span>
+    <span class="ts-time">${val?fmtTime(val):"Toque para registrar"}</span>
     ${val?`<span class="ts-check">✓ registrado</span>`:""}
   </button>`;
 }
-
-function tsReadOnly(campo, label, p){
-  const val = p[campo];
-  return `<div class="ts-btn ts-readonly" style="border-color:${val?'#3b82f644':'#1e2d47'};background:${val?'#3b82f610':'transparent'}">
+function tsRoHTML(campo,label,p){
+  const val=p[campo];
+  return `<div class="ts-btn ts-readonly ${val?'ts-done':''}">
     <span class="ts-label">${label}</span>
-    <span class="ts-time" style="color:${val?'#3b82f6':'#6b7280'}">${val?fmtTime(val):"—"}</span>
+    <span class="ts-time">${val?fmtTime(val):"—"}</span>
   </div>`;
 }
 
-// Attach timestamp buttons (event delegation)
-document.addEventListener("click", e=>{
-  const btn = e.target.closest("[data-ts][data-pid]");
+// Timestamps via event delegation
+document.addEventListener("click",e=>{
+  const btn=e.target.closest("[data-ts][data-pid]");
   if(!btn||btn.classList.contains("ts-disabled")||btn.classList.contains("ts-done")||btn.classList.contains("ts-readonly")) return;
-  const campo = btn.dataset.ts;
-  const pid   = btn.dataset.pid;
-  const p     = pacientes[pid];
-  if(!p) return;
-  // Verificar pré-requisito
-  const reqs = {
-    inicioRecepcao:   null,
-    fimRecepcao:      "inicioRecepcao",
-    inicioExame:      "fimRecepcao",
-    fimExame:         "inicioExame",
-    saidaClinica:     "fimExame"
-  };
-  const req = reqs[campo];
-  if(req && !p[req]){ alert(`Registre "${req}" antes.`); return; }
-  if(p[campo]) return;
-  const up = {};
-  up[campo] = nowISO();
-  up["operadorUltimo"] = currentUser.nome;
-  update(ref(db,`pacientes/${pid}`), up);
+  const campo=btn.dataset.ts;
+  const pid=btn.dataset.pid;
+  const p=pacientes[pid];
+  if(!p||p[campo]) return;
+  const reqs={inicioRecepcao:null,fimRecepcao:"inicioRecepcao",inicioExame:"fimRecepcao",fimExame:"inicioExame"};
+  const req=reqs[campo];
+  if(req&&!p[req]){ alert(`Registre o campo anterior primeiro.`); return; }
+  const up={}; up[campo]=nowISO(); up.operadorUltimo=currentUser?.nome||"";
+  update(ref(db,`pacientes/${pid}`),up);
 });
 
 /* ══════════════════════════════════════════════════════════
    MODAL NOVO PACIENTE
 ══════════════════════════════════════════════════════════ */
+let examesSelecionados=[];
+
 function modalNovoPaciente(){
-  const ov = document.getElementById("modal-overlay");
-  ov.style.display = "flex";
-  ov.innerHTML = `
+  examesSelecionados=[];
+  const ov=document.getElementById("modal-overlay");
+  ov.style.display="flex";
+  ov.innerHTML=`
   <div class="modal-card">
+    <div class="modal-handle"></div>
     <div class="modal-header">
-      <span style="font-weight:800;font-size:16px">Novo Paciente</span>
-      <button id="m-close" style="background:none;border:none;color:#6b7280;font-size:22px;cursor:pointer">×</button>
+      <div class="modal-title">Novo Paciente</div>
+      <button id="m-close" style="background:none;border:none;color:var(--text3);font-size:24px;cursor:pointer;line-height:1">×</button>
     </div>
+
     <div class="field-group">
-      <label class="field-label">Nome do paciente (opcional)</label>
-      <input id="m-nome" class="field-input" placeholder="Nome completo ou apelido"/>
+      <label class="field-label">Nome (opcional)</label>
+      <input id="m-nome" class="field-input" placeholder="Nome ou apelido do paciente" autocomplete="off"/>
     </div>
+
     <div class="field-group">
-      <label class="field-label">Tipo de Exame <span style="color:#ef4444">*</span></label>
-      <select id="m-exame" class="field-input">
-        <option value="">— selecionar —</option>
-        ${EXAM_TYPES.map(e=>`<option>${e}</option>`).join("")}
-      </select>
+      <label class="field-label">Exames <span style="color:var(--danger)">*</span> <span id="exame-count" style="color:var(--blue);font-size:10px">(selecione um ou mais)</span></label>
+      <input id="busca-exame" class="field-input" placeholder="🔍 Filtrar exames..." style="margin-bottom:8px" autocomplete="off"/>
+      <div class="exame-grid" id="exame-grid">
+        ${EXAMES.map(e=>`<button class="exame-chip" data-exame="${e}">${e}</button>`).join("")}
+      </div>
+      <div class="exame-selected-list" id="exame-sel-list"></div>
     </div>
+
     <div class="field-group">
       <label class="field-label">Prioridade</label>
-      <select id="m-prio" class="field-input">
-        ${PRIORIDADES.map(p=>`<option value="${p.v}">${p.l}</option>`).join("")}
-      </select>
+      <div class="prio-grid" id="prio-grid">
+        ${PRIORIDADES.map(p=>`
+        <button class="prio-btn" data-pv="${p.v}"
+          style="${p.v==='normal'?`border-color:${p.cor};background:${p.bg};color:${p.cor}`:''}">
+          ${p.l}
+        </button>`).join("")}
+      </div>
     </div>
+
     <div class="field-group">
-      <label class="field-label">Convênio / Pagamento</label>
+      <label class="field-label">Convênio / Pagamento <span style="color:var(--danger)">*</span></label>
       <select id="m-conv" class="field-input">
+        <option value="">— selecionar —</option>
         ${CONVENIOS.map(c=>`<option>${c}</option>`).join("")}
       </select>
     </div>
-    <div class="field-group">
-      <label class="field-label">Sala</label>
-      <select id="m-sala" class="field-input">
-        <option value="1">Sala 1</option>
-        <option value="2">Sala 2</option>
-        <option value="única">Sala única</option>
-      </select>
-    </div>
+
     <div class="field-group">
       <label class="field-label">Observações</label>
       <input id="m-obs" class="field-input" placeholder="Informações relevantes..."/>
     </div>
-    <div style="display:flex;gap:10px;margin-top:4px">
-      <button class="btn-ghost" id="m-close2" style="flex:1">Cancelar</button>
+
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <button class="btn-ghost" id="m-cancel" style="flex:1">Cancelar</button>
       <button class="btn-primary" id="m-salvar" style="flex:2">✓ Registrar chegada</button>
     </div>
   </div>`;
 
-  const fechar = ()=>{ ov.style.display="none"; ov.innerHTML=""; };
-  document.getElementById("m-close").onclick = fechar;
-  document.getElementById("m-close2").onclick = fechar;
-  document.getElementById("m-salvar").onclick = ()=>{
-    const exame = document.getElementById("m-exame").value;
-    if(!exame){ alert("Selecione o tipo de exame."); return; }
-    const nid = push(ref(db,"pacientes")).key;
+  // Filtro de exames
+  document.getElementById("busca-exame").oninput=function(){
+    const q=this.value.toLowerCase();
+    document.querySelectorAll(".exame-chip").forEach(chip=>{
+      chip.style.display=chip.dataset.exame.toLowerCase().includes(q)?"":"none";
+    });
+  };
+
+  // Seleção de exames
+  let prioSel="normal";
+  document.querySelectorAll(".exame-chip").forEach(chip=>{
+    chip.onclick=()=>{
+      const ex=chip.dataset.exame;
+      if(examesSelecionados.includes(ex)){
+        examesSelecionados=examesSelecionados.filter(e=>e!==ex);
+        chip.classList.remove("selected");
+      } else {
+        examesSelecionados.push(ex);
+        chip.classList.add("selected");
+      }
+      atualizarTagsExame();
+    };
+  });
+
+  // Prioridade
+  document.querySelectorAll(".prio-btn").forEach(b=>{
+    b.onclick=()=>{
+      prioSel=b.dataset.pv;
+      const pm=PRIORIDADES.find(x=>x.v===prioSel)||PRIORIDADES[0];
+      document.querySelectorAll(".prio-btn").forEach(x=>{ x.style.borderColor="var(--border)"; x.style.background="var(--surface)"; x.style.color="var(--text3)"; });
+      b.style.borderColor=pm.cor; b.style.background=pm.bg; b.style.color=pm.cor;
+    };
+  });
+
+  const fechar=()=>{ ov.style.display="none"; ov.innerHTML=""; examesSelecionados=[]; };
+  document.getElementById("m-close").onclick=fechar;
+  document.getElementById("m-cancel").onclick=fechar;
+
+  document.getElementById("m-salvar").onclick=()=>{
+    if(!examesSelecionados.length){ alert("Selecione pelo menos um exame."); return; }
+    const conv=document.getElementById("m-conv").value;
+    if(!conv){ alert("Selecione o convênio."); return; }
+    const nid=push(ref(db,"pacientes")).key;
     set(ref(db,`pacientes/${nid}`),{
-      nome:        document.getElementById("m-nome").value.trim() || `Paciente ${nid.slice(-4).toUpperCase()}`,
-      exame,
-      prioridade:  document.getElementById("m-prio").value,
-      convenio:    document.getElementById("m-conv").value,
-      sala:        document.getElementById("m-sala").value,
-      obs:         document.getElementById("m-obs").value.trim(),
-      operadorNome: currentUser.nome,
-      turno:        horaTurno(),
-      chegadaRecepcao: nowISO(),
-      inicioRecepcao: null, fimRecepcao: null,
-      inicioExame: null, fimExame: null, saidaClinica: null,
-      satisfacao: null, adversos: [], cancelado: false, desistiu: false,
-      motivoCancelamento: ""
+      nome:       document.getElementById("m-nome").value.trim()||`Paciente ${nid.slice(-4).toUpperCase()}`,
+      exames:     examesSelecionados,
+      exame:      examesSelecionados[0],
+      prioridade: prioSel,
+      convenio:   conv,
+      obs:        document.getElementById("m-obs").value.trim(),
+      operadorNome:currentUser.nome,
+      turno:      horaTurno(),
+      chegadaRecepcao:nowISO(),
+      inicioRecepcao:null,fimRecepcao:null,
+      inicioExame:null,fimExame:null,
+      adversos:[],statusAtendimento:null
     });
     fechar();
   };
 }
 
-function horaTurno(){
-  const h = new Date().getHours();
-  if(h<12) return "Manhã";
-  if(h<18) return "Tarde";
-  return "Noite";
+function atualizarTagsExame(){
+  const el=document.getElementById("exame-sel-list");
+  const cnt=document.getElementById("exame-count");
+  if(!el) return;
+  if(cnt) cnt.textContent=examesSelecionados.length?`(${examesSelecionados.length} selecionado${examesSelecionados.length>1?"s":""})`:` (selecione um ou mais)`;
+  el.innerHTML=examesSelecionados.map(e=>`
+    <div class="exame-tag">
+      ${e.replace("US ","")}<span class="exame-tag-remove" data-rem="${e}">×</span>
+    </div>`).join("");
+  el.querySelectorAll("[data-rem]").forEach(r=>{
+    r.onclick=()=>{
+      const ex=r.dataset.rem;
+      examesSelecionados=examesSelecionados.filter(x=>x!==ex);
+      const chip=document.querySelector(`.exame-chip[data-exame="${ex}"]`);
+      if(chip) chip.classList.remove("selected");
+      atualizarTagsExame();
+    };
+  });
 }
 
 /* ══════════════════════════════════════════════════════════
-   CARD DE PACIENTE (reutilizável)
-══════════════════════════════════════════════════════════ */
-function cardPaciente(id, p, perfil){
-  const st   = statusOf(p);
-  const smeta= STATUS_META[st]||{l:"—",cor:"#6b7280"};
-  const pmet = PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
-  const espMin= p.fimRecepcao&&!p.inicioExame ? diffMin(p.fimRecepcao,nowISO()) : null;
-
-  return `<div class="pac-card" data-pid="${id}" style="border-left-color:${smeta.cor}">
-    <div class="pac-card-top">
-      <div>
-        <div class="pac-card-name">${p.nome}</div>
-        <div class="pac-card-sub">${p.exame} · ${p.convenio}</div>
-        <div class="pac-card-time">Chegada: ${fmtTime(p.chegadaRecepcao)}
-          ${espMin!==null&&st==="aguardando_exame"?`<span style="color:${espMin>30?'#ef4444':'#f59e0b'};font-weight:700;margin-left:8px">⏱ ${espMin}min aguardando</span>`:""}
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
-        <span class="badge" style="background:${smeta.cor}22;color:${smeta.cor};border-color:${smeta.cor}44">${smeta.l}</span>
-        ${p.prioridade!=="normal"?`<span class="badge" style="background:${pmet.cor}22;color:${pmet.cor};border-color:${pmet.cor}44">${pmet.l}</span>`:""}
-      </div>
-    </div>
-  </div>`;
-}
-
-/* ══════════════════════════════════════════════════════════
-   TELA ADMIN — Gestão de Usuários
+   ADMIN — Gestão de Usuários
 ══════════════════════════════════════════════════════════ */
 function telaAdmin(){
-  const app = document.getElementById("app");
-  app.dataset.tela = "admin";
-  app.innerHTML = `
+  document.getElementById("app").innerHTML=`
   <div class="screen">
-    <header class="topbar" style="border-bottom-color:#ef444444">
-      <div class="topbar-left">
-        <button class="btn-back" id="btn-back-admin">← Voltar</button>
-      </div>
-      <div class="topbar-right">
-        <span style="font-size:13px;font-weight:800;color:#ef4444">⚙ Administração</span>
-      </div>
+    <header class="topbar" style="border-bottom-color:#dc262633">
+      <button class="btn-back" id="btn-back-adm">← Voltar</button>
+      <span style="font-size:13px;font-weight:800;color:var(--danger)">⚙ Administração</span>
     </header>
     <div class="content">
       <div class="section-title">Usuários Cadastrados</div>
-      <div id="lista-usuarios"></div>
-      <div class="ts-section" style="margin-top:20px">
-        <div class="ts-section-title" style="color:#10b981">+ Novo Usuário</div>
+      <div id="lista-users"></div>
+
+      <div class="ts-section" style="margin-top:20px;border-color:var(--success)44">
+        <div class="ts-section-title" style="color:var(--success)">+ Novo Usuário</div>
+
         <div class="field-group">
           <label class="field-label">Nome completo</label>
           <input id="nu-nome" class="field-input" placeholder="Ex: Maria da Recepção"/>
         </div>
         <div class="field-group">
           <label class="field-label">Usuário (login)</label>
-          <input id="nu-user" class="field-input" placeholder="Ex: maria.recep" autocomplete="off"/>
+          <input id="nu-user" class="field-input" placeholder="Ex: maria.recep" autocomplete="off" autocapitalize="off"/>
         </div>
         <div class="field-group">
           <label class="field-label">Senha</label>
           <input id="nu-pass" class="field-input" type="password" placeholder="Mínimo 6 caracteres"/>
         </div>
         <div class="field-group">
-          <label class="field-label">Perfil</label>
-          <select id="nu-perfil" class="field-input">
-            <option value="recepcao">🟦 Recepção</option>
-            <option value="sala">🟣 Sala de Exame</option>
-            <option value="supervisor">🔴 Supervisor</option>
-            <option value="admin">⚙ Administrador</option>
-          </select>
+          <label class="field-label">Perfis de Acesso <span style="color:var(--danger)">*</span> <span style="font-size:10px;color:var(--text3)">(selecione 1 ou mais)</span></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            ${Object.entries(PERFIS).map(([v,l])=>`
+            <button class="prio-btn" data-perfil="${v}" style="font-size:12px">${l}</button>`).join("")}
+          </div>
+          <div id="perfis-sel-list" style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px"></div>
         </div>
-        <button class="btn-primary full" id="btn-criar-user">✓ Criar usuário</button>
-        <div id="user-msg" style="margin-top:8px;font-size:12px;display:none"></div>
+        <button class="btn-primary full" id="btn-criar">✓ Criar usuário</button>
+        <div id="usr-msg" style="margin-top:8px;font-size:12px;display:none"></div>
       </div>
     </div>
   </div>`;
 
-  document.getElementById("btn-back-admin").onclick = ()=> render("supervisor");
+  document.getElementById("btn-back-adm").onclick=()=>render("supervisor");
 
-  const renderUsers = ()=>{
-    const el = document.getElementById("lista-usuarios");
-    if(!el) return;
-    const list = Object.entries(usuarios);
-    if(!list.length){ el.innerHTML=`<div style="color:#6b7280;font-size:13px">Nenhum usuário cadastrado ainda.</div>`; return; }
-    el.innerHTML = list.map(([id,u])=>`
-      <div class="pac-card" style="border-left-color:${u.ativo===false?'#ef4444':'#10b981'}">
-        <div class="pac-card-top">
-          <div>
-            <div class="pac-card-name">${u.nome}</div>
-            <div class="pac-card-sub">@${u.usuario} · ${{recepcao:"Recepção",sala:"Sala de Exame",supervisor:"Supervisor",admin:"Admin"}[u.perfil]||u.perfil}</div>
-          </div>
-          <div style="display:flex;gap:6px;align-items:center">
-            <span class="badge" style="background:${u.ativo===false?'#ef444422':'#10b98122'};color:${u.ativo===false?'#ef4444':'#10b981'};border-color:${u.ativo===false?'#ef444444':'#10b98144'}">${u.ativo===false?"Inativo":"Ativo"}</span>
-            <button onclick="toggleUser('${id}','${u.ativo!==false}')" class="btn-sm">${u.ativo===false?"Ativar":"Desativar"}</button>
-            <button onclick="resetSenha('${id}')" class="btn-sm">Nova senha</button>
-          </div>
-        </div>
-      </div>`).join("");
-  };
+  // Perfis do novo usuário
+  let perfisSel=[];
+  document.querySelectorAll("[data-perfil]").forEach(b=>{
+    b.onclick=()=>{
+      const pf=b.dataset.perfil;
+      if(perfisSel.includes(pf)){ perfisSel=perfisSel.filter(x=>x!==pf); b.style.borderColor="var(--border)"; b.style.background="var(--surface)"; b.style.color="var(--text3)"; }
+      else { perfisSel.push(pf); b.style.borderColor="var(--blue)"; b.style.background="#eff5ff"; b.style.color="var(--blue)"; }
+      document.getElementById("perfis-sel-list").innerHTML=perfisSel.map(p=>`<div class="exame-tag">${PERFIS[p]||p}</div>`).join("");
+    };
+  });
 
-  onValue(ref(db,"usuarios"), snap=>{ Object.assign(usuarios,snap.val()||{}); renderUsers(); });
-  renderUsers();
+  // Carregar usuários em tempo real
+  onValue(ref(db,"usuarios"),snap=>{ usuarios=snap.val()||{}; renderListaUsers(); });
+  renderListaUsers();
 
-  document.getElementById("btn-criar-user").onclick = ()=>{
-    const nome   = document.getElementById("nu-nome").value.trim();
-    const user   = document.getElementById("nu-user").value.trim().toLowerCase();
-    const pass   = document.getElementById("nu-pass").value;
-    const perfil = document.getElementById("nu-perfil").value;
-    const msg    = document.getElementById("user-msg");
-
-    if(!nome||!user||!pass){ msg.style.display="block"; msg.style.color="#ef4444"; msg.textContent="Preencha todos os campos."; return; }
-    if(pass.length<6){ msg.style.display="block"; msg.style.color="#ef4444"; msg.textContent="Senha mínima: 6 caracteres."; return; }
-
-    const existe = Object.values(usuarios).some(u=>u.usuario===user);
-    if(existe){ msg.style.display="block"; msg.style.color="#ef4444"; msg.textContent="Esse usuário já existe."; return; }
-
-    const nid = push(ref(db,"usuarios")).key;
-    set(ref(db,`usuarios/${nid}`),{nome,usuario:user,senha:pass,perfil,ativo:true,criadoEm:nowISO()});
-    msg.style.display="block"; msg.style.color="#10b981"; msg.textContent=`Usuário "${user}" criado com sucesso!`;
-    document.getElementById("nu-nome").value="";
-    document.getElementById("nu-user").value="";
-    document.getElementById("nu-pass").value="";
+  document.getElementById("btn-criar").onclick=()=>{
+    const nome  =document.getElementById("nu-nome").value.trim();
+    const user  =document.getElementById("nu-user").value.trim().toLowerCase();
+    const pass  =document.getElementById("nu-pass").value;
+    const msg   =document.getElementById("usr-msg");
+    if(!nome||!user||!pass||!perfisSel.length){ msg.style.display="block"; msg.style.color="var(--danger)"; msg.textContent="Preencha todos os campos e selecione ao menos 1 perfil."; return; }
+    if(pass.length<6){ msg.style.display="block"; msg.style.color="var(--danger)"; msg.textContent="Senha mínima: 6 caracteres."; return; }
+    if(Object.values(usuarios).some(u=>u.usuario===user)){ msg.style.display="block"; msg.style.color="var(--danger)"; msg.textContent="Esse usuário já existe."; return; }
+    if(user===ADMIN_FIXO.usuario){ msg.style.display="block"; msg.style.color="var(--danger)"; msg.textContent="Nome de usuário reservado."; return; }
+    const nid=push(ref(db,"usuarios")).key;
+    set(ref(db,`usuarios/${nid}`),{nome,usuario:user,senha:pass,perfil:perfisSel,ativo:true,criadoEm:nowISO()});
+    msg.style.display="block"; msg.style.color="var(--success)"; msg.textContent=`✓ Usuário "${user}" criado com sucesso!`;
+    ["nu-nome","nu-user","nu-pass"].forEach(id=>{ document.getElementById(id).value=""; });
+    perfisSel=[];
+    document.querySelectorAll("[data-perfil]").forEach(b=>{ b.style.borderColor="var(--border)"; b.style.background="var(--surface)"; b.style.color="var(--text3)"; });
+    document.getElementById("perfis-sel-list").innerHTML="";
   };
 }
 
-window.toggleUser = (id, isAtivo)=>{
-  update(ref(db,`usuarios/${id}`),{ativo: isAtivo==="true"?false:true});
-};
-window.resetSenha = (id)=>{
-  const nova = prompt("Nova senha (mínimo 6 caracteres):");
+function renderListaUsers(){
+  const el=document.getElementById("lista-users");
+  if(!el) return;
+  const list=Object.entries(usuarios);
+  if(!list.length){ el.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:16px">Nenhum usuário cadastrado além do admin.</div>`; return; }
+  el.innerHTML=list.map(([id,u])=>{
+    const perfis=Array.isArray(u.perfil)?u.perfil:[u.perfil];
+    return `<div class="admin-user-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+        <div>
+          <div style="font-size:14px;font-weight:800;color:var(--text);margin-bottom:4px">${u.nome}</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:6px">@${u.usuario}</div>
+          <div>${perfis.map(pf=>`<span class="profile-tag" style="background:var(--surface2);color:var(--blue)">${PERFIS[pf]||pf}</span>`).join("")}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+          <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;
+            background:${u.ativo===false?'var(--danger-bg)':'var(--success-bg)'};
+            color:${u.ativo===false?'var(--danger)':'var(--success)'}">${u.ativo===false?"Inativo":"Ativo"}</span>
+          <button onclick="toggleUser('${id}','${u.ativo!==false}')" class="btn-sm">${u.ativo===false?"Ativar":"Desativar"}</button>
+          <button onclick="resetSenha('${id}')" class="btn-sm">Nova senha</button>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+window.toggleUser=(id,isAtivo)=>{ update(ref(db,`usuarios/${id}`),{ativo:isAtivo==="true"?false:true}); };
+window.resetSenha=(id)=>{
+  const nova=prompt("Nova senha (mínimo 6 caracteres):");
   if(!nova||nova.length<6){ alert("Senha inválida."); return; }
   update(ref(db,`usuarios/${id}`),{senha:nova});
-  alert("Senha atualizada!");
+  alert("Senha atualizada com sucesso!");
 };
 
-/* ══════════════════════════════════════════════════════════
-   EXPORTAÇÃO CSV
-══════════════════════════════════════════════════════════ */
-function exportarCSV(){
-  const headers = [
-    "ID","Nome","Data","Exame","Prioridade","Convenio","Sala","Turno","Operador",
-    "ChegadaRecepcao","InicioRecepcao","FimRecepcao","InicioExame","FimExame","SaidaClinica",
-    "EsperaMin","ExameMin","TotalMin","Satisfacao","Adversos","Status","Motivo"
-  ];
-  const rows = Object.entries(pacientes).map(([id,p])=>[
-    id, p.nome, fmtDate(p.chegadaRecepcao), p.exame, p.prioridade, p.convenio, p.sala||"", p.turno||"", p.operadorNome||"",
-    p.chegadaRecepcao||"", p.inicioRecepcao||"", p.fimRecepcao||"",
-    p.inicioExame||"", p.fimExame||"", p.saidaClinica||"",
-    diffMin(p.fimRecepcao,p.inicioExame)??(""),
-    diffMin(p.inicioExame,p.fimExame)??(""),
-    diffMin(p.chegadaRecepcao,p.saidaClinica)??(""),
-    p.satisfacao||"",
-    (p.adversos||[]).map(a=>a.tipo).join("; "),
-    statusOf(p),
-    p.motivoCancelamento||""
-  ]);
-  const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
-  const blob = new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
-  const url  = URL.createObjectURL(blob);
-  const a    = document.createElement("a");
-  a.href=url; a.download=`cerdil_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
+/* ── Helpers visuais ── */
+function statusBarHTML(hoje){
+  let html=`<div class="status-bar">`;
+  Object.entries(STATUS_META).forEach(([k,m])=>{
+    const c=hoje.filter(([,p])=>statusOf(p)===k).length;
+    if(c>0) html+=`<div class="status-chip" style="border-color:${m.cor}44;background:${m.bg};color:${m.cor}">
+      <span class="status-count">${c}</span><span class="status-lbl" style="font-size:10px">${m.l}</span>
+    </div>`;
+  });
+  return html+`</div>`;
 }
 
-/* ─── KPI helpers ─────────────────────────────────────── */
+function cardHTML(id,p){
+  const st=statusOf(p);
+  const sm=STATUS_META[st]||{l:"—",cor:"#6b82a8",bg:"#f0f4fb"};
+  const pm=PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
+  const examesArr=Array.isArray(p.exames)?p.exames:(p.exame?[p.exame]:[]);
+  const espMin=p.fimRecepcao&&!p.inicioExame?diffMin(p.fimRecepcao,nowISO()):null;
+  return `<div class="pac-card" data-pid="${id}" style="border-left-color:${sm.cor}">
+    <div class="pac-card-top">
+      <div style="flex:1;min-width:0">
+        <div class="pac-card-name">${p.nome}</div>
+        <div class="pac-card-sub">${examesArr.slice(0,2).join(", ")}${examesArr.length>2?` +${examesArr.length-2}`:""}</div>
+        <div class="pac-card-sub">${p.convenio||""}</div>
+        <div class="pac-card-time">Chegada: ${fmtTime(p.chegadaRecepcao)}${espMin!==null&&st==="aguardando_exame"?`<span style="color:${espMin>30?'var(--danger)':'var(--warning)'};font-weight:700;margin-left:8px">⏱ ${espMin}min</span>`:""}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+        <span class="badge" style="background:${sm.bg};color:${sm.cor};border-color:${sm.cor}44;border:1.5px solid">${sm.l}</span>
+        ${p.prioridade!=="normal"?`<span class="badge" style="background:${pm.bg};color:${pm.cor};border-color:${pm.cor}44;border:1.5px solid">${pm.l}</span>`:""}
+      </div>
+    </div>
+  </div>`;
+}
+
 function kpi(label,valor,cor){
-  return `<div class="kpi-card" style="border-color:${cor}33;background:${cor}0d">
+  return `<div class="kpi-card" style="border-color:${cor}33">
     <div class="kpi-val" style="color:${cor}">${valor}</div>
     <div class="kpi-lbl">${label}</div>
   </div>`;
 }
 
-/* ─── Boot ────────────────────────────────────────────── */
+/* ── CSV ── */
+function exportarCSV(){
+  const headers=["ID","Nome","Data","Exames","Prioridade","Convenio","Turno","Operador",
+    "ChegadaRecepcao","InicioRecepcao","FimRecepcao","InicioExame","FimExame",
+    "EsperaMin","ExameMin","TotalMin","Adversos","Status","Obs"];
+  const rows=Object.entries(pacientes).map(([id,p])=>[
+    id,p.nome,fmtDate(p.chegadaRecepcao),
+    (Array.isArray(p.exames)?p.exames:[p.exame]).filter(Boolean).join("; "),
+    p.prioridade,p.convenio,p.turno||"",p.operadorNome||"",
+    p.chegadaRecepcao||"",p.inicioRecepcao||"",p.fimRecepcao||"",
+    p.inicioExame||"",p.fimExame||"",
+    diffMin(p.fimRecepcao,p.inicioExame)??"",
+    diffMin(p.inicioExame,p.fimExame)??"",
+    diffMin(p.chegadaRecepcao,p.fimExame)??"",
+    (p.adversos||[]).map(a=>a.tipo).join("; "),
+    p.statusAtendimento||statusOf(p),p.obs||""
+  ]);
+  const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a"); a.href=url;
+  a.download=`atlas_${new Date().toISOString().slice(0,10)}.csv`; a.click();
+}
+
+function logout(){ currentUser=null; currentPerfil=null; unsubPac=null; render("login"); }
+
+/* ── Boot ── */
 render("login");
 </script>
-
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0b0f1a;color:#e8eef8;font-family:'DM Sans',sans-serif;min-height:100vh}
-#app{max-width:600px;margin:0 auto;min-height:100vh}
-
-/* Layout */
-.screen{display:flex;flex-direction:column;min-height:100vh}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;
-  background:#131929;border-bottom:1px solid #1e2d4744;position:sticky;top:0;z-index:50;gap:10px}
-.topbar-left{display:flex;align-items:center;gap:10px}
-.topbar-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.topbar-title{font-size:15px;font-weight:900;letter-spacing:-.3px}
-.topbar-sub{font-size:11px;color:#6b7280}
-.topbar-icon{font-size:18px}
-.content{padding:16px;flex:1;padding-bottom:60px}
-
-/* Tabs */
-.tabs-bar{display:flex;gap:4px;padding:10px 16px 0;background:#131929;border-bottom:1px solid #1e2d47}
-.tab{flex:1;padding:8px 4px;border:none;border-radius:8px 8px 0 0;font-family:inherit;
-  font-size:12px;font-weight:700;cursor:pointer;background:transparent;color:#6b7280;transition:all .15s}
-.tab.active{background:#1a2236;color:#3b82f6;border-bottom:2px solid #3b82f6}
-
-/* Login */
-.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
-  background:radial-gradient(ellipse at 50% 0%,#1e3a6e22 0%,transparent 70%)}
-.login-card{width:100%;max-width:360px;background:#131929;border:1px solid #1e2d47;
-  border-radius:20px;padding:32px 28px}
-.logo-block{text-align:center;margin-bottom:28px}
-.logo-icon{font-size:36px;color:#3b82f6;line-height:1}
-.logo-text{font-size:22px;font-weight:900;letter-spacing:2px;margin-top:8px}
-.logo-sub{font-size:12px;color:#6b7280;margin-top:4px}
-.login-hint{text-align:center;font-size:11px;color:#6b7280;margin-top:12px}
-
-/* Forms */
-.field-group{margin-bottom:14px}
-.field-label{display:block;font-size:11px;font-weight:700;color:#6b7280;
-  margin-bottom:5px;letter-spacing:.8px;text-transform:uppercase}
-.field-input{width:100%;padding:10px 14px;border-radius:10px;background:#1e2d47;
-  border:1px solid #283348;color:#e8eef8;font-size:13px;font-family:inherit;outline:none;
-  transition:border-color .15s}
-.field-input:focus{border-color:#3b82f6}
-.error-msg{font-size:12px;color:#ef4444;padding:8px;background:#ef444415;
-  border-radius:8px;margin-bottom:10px}
-
-/* Buttons */
-.btn-primary{padding:11px 20px;border-radius:10px;border:none;background:#3b82f6;
-  color:#fff;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;
-  letter-spacing:.3px;transition:opacity .15s}
-.btn-primary:hover{opacity:.85}
-.btn-primary.full{width:100%}
-.btn-accent{padding:8px 16px;border-radius:8px;border:1px solid #3b82f644;
-  background:#3b82f620;color:#3b82f6;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
-.btn-ghost{padding:8px 14px;border-radius:8px;border:1px solid #283348;
-  background:transparent;color:#6b7280;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
-.btn-sm{padding:6px 12px;border-radius:7px;border:1px solid #283348;
-  background:#1e2d47;color:#e8eef8;font-weight:700;font-size:11px;cursor:pointer;font-family:inherit}
-.btn-danger{padding:10px 16px;border-radius:10px;border:none;background:#ef444422;
-  color:#ef4444;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;
-  border:1px solid #ef444444}
-.btn-back{padding:8px 14px;border-radius:8px;border:1px solid #283348;
-  background:transparent;color:#6b7280;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
-
-/* Cards */
-.pac-card{background:#1a2236;border:1px solid #1e2d47;border-left:3px solid #3b82f6;
-  border-radius:12px;padding:14px 16px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
-.pac-card:hover{border-color:#3b82f666}
-.pac-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.pac-card-name{font-size:14px;font-weight:800;color:#e8eef8;margin-bottom:3px}
-.pac-card-sub{font-size:12px;color:#6b7280}
-.pac-card-time{font-size:11px;color:#6b7280;margin-top:3px;font-variant-numeric:tabular-nums}
-
-/* Badges */
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;
-  font-size:11px;font-weight:700;letter-spacing:.5px;border:1px solid #283348;
-  background:#1e2d47;color:#6b7280}
-
-/* Status bar */
-.status-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
-.status-chip{padding:6px 12px;border-radius:8px;border:1px solid;font-size:11px;font-weight:700;
-  display:flex;align-items:center;gap:5px}
-.status-count{font-size:16px;font-weight:900}
-.status-lbl{font-size:10px;opacity:.8}
-
-/* Timestamps */
-.ts-section{background:#131929;border:1px solid #1e2d47;border-radius:14px;padding:16px;margin-bottom:14px}
-.ts-section-title{font-size:11px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;
-  margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.ts-btn{display:flex;flex-direction:column;align-items:flex-start;padding:12px 16px;
-  border-radius:10px;width:100%;background:transparent;border:1.5px solid #1e2d47;
-  cursor:pointer;font-family:inherit;text-align:left;margin-bottom:8px;transition:all .2s}
-.ts-btn:last-child{margin-bottom:0}
-.ts-btn.ts-disabled{opacity:.4;cursor:not-allowed}
-.ts-btn.ts-readonly{cursor:default}
-.ts-label{font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
-  color:#6b7280;margin-bottom:4px}
-.ts-time{font-size:16px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.5px}
-.ts-check{font-size:10px;color:#10b981;margin-top:3px}
-
-/* KPI */
-.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
-@media(max-width:400px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
-.kpi-card{padding:14px 10px;border-radius:12px;text-align:center;border:1px solid #1e2d47}
-.kpi-mini{padding:12px 8px;border-radius:10px;text-align:center;border:1px solid #1e2d47;background:#131929}
-.kpi-val{font-size:22px;font-weight:900;font-variant-numeric:tabular-nums}
-.kpi-lbl{font-size:10px;color:#6b7280;letter-spacing:.8px;text-transform:uppercase;margin-top:3px}
-
-/* Chart */
-.exam-chart{background:#131929;border:1px solid #1e2d47;border-radius:12px;padding:14px}
-.chart-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.chart-row:last-child{margin-bottom:0}
-.chart-label{font-size:11px;color:#e8eef8;width:140px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.chart-bar-wrap{flex:1;height:6px;background:#1e2d47;border-radius:3px;overflow:hidden}
-.chart-bar{height:100%;background:#3b82f6;border-radius:3px;transition:width .5s}
-.chart-val{font-size:12px;font-weight:800;color:#3b82f6;width:24px;text-align:right}
-
-/* Adverse */
-.adverse-chip{padding:7px 12px;border-radius:8px;background:#f59e0b15;
-  border:1px solid #f59e0b33;font-size:12px;color:#e8eef8;margin-bottom:5px;display:flex;justify-content:space-between}
-
-/* Patient header */
-.pac-header{background:#131929;border:1px solid #1e2d47;border-radius:14px;padding:18px;margin-bottom:16px}
-.pac-name{font-size:20px;font-weight:900;color:#e8eef8;margin-bottom:4px}
-.pac-meta{font-size:12px;color:#6b7280;margin-bottom:2px}
-
-/* Sections */
-.section-title{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
-  color:#6b7280;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #1e2d47}
-.list-header{font-size:12px;font-weight:800;color:#6b7280;letter-spacing:.8px;
-  text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
-
-/* Report table */
-.report-table{background:#131929;border:1px solid #1e2d47;border-radius:12px;overflow:hidden}
-.rt-header,.rt-row{display:grid;grid-template-columns:1fr .7fr .7fr 1fr 1fr;gap:8px;padding:10px 14px;font-size:12px}
-.rt-header{background:#1e2d47;font-weight:800;color:#6b7280;font-size:11px;letter-spacing:.6px;text-transform:uppercase}
-.rt-row{border-top:1px solid #1e2d4755;color:#e8eef8}
-.rt-row:hover{background:#1e2d4733}
-
-/* Modal */
-#modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;
-  display:flex;align-items:center;justify-content:center;padding:16px}
-.modal-card{background:#131929;border:1px solid #1e2d47;border-radius:18px;
-  padding:24px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto}
-.modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-
-/* Empty */
-.empty-state{text-align:center;padding:52px 24px;color:#6b7280;font-size:14px;
-  background:#131929;border:1px dashed #1e2d47;border-radius:14px;line-height:1.8}
-</style>
 </head>
 <body>
 <div id="app"></div>
