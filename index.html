@@ -421,6 +421,10 @@ const ADVERSOS = [
   "Falha no equipamento","Dificuldade de mobilidade",
   "Exame interrompido","Outro"
 ];
+const OUTRAS_MODALIDADES = [
+  "Bioimpedância","Densitometria Óssea","Mamografia Digital",
+  "Ressonância Magnética","Tomografia"
+];
 const PERFIS = {recepcao:"🟦 Recepção",sala:"🟣 Sala de Exame",supervisor:"📊 Supervisor",admin:"⚙ Admin"};
 const CORES_PERFIL = {recepcao:"#1e6fff",sala:"#9b6dff",supervisor:"#0ecb81",admin:"#f04040"};
 
@@ -453,6 +457,7 @@ let usuarios      = {};
 let listenersOn   = false;
 let dataSel       = todayStr();
 let tabAtiva      = "painel";
+let filtroStatus  = "ativos";
 let detalhePID    = null;
 let detalheOrigem = null;
 
@@ -675,9 +680,36 @@ function dateFilterHTML(){
   </div>`;
 }
 function bindDateFilter(){
-  document.querySelectorAll(".date-btn").forEach(b=>{
+  document.querySelectorAll(".date-btn[data-off]").forEach(b=>{
     b.onclick=()=>{ dataSel=dateStrFromOffset(parseInt(b.dataset.off)); atualizarConteudo(); };
   });
+}
+
+/* ── Filtro de status (Ativos / Concluídos / Cancelados / Todos) ── */
+const STATUS_FILTROS = [
+  {v:"ativos",     l:"Ativos"},
+  {v:"concluidos", l:"Concluídos"},
+  {v:"cancelados", l:"Cancelados"},
+  {v:"todos",      l:"Todos"}
+];
+function statusFilterHTML(){
+  return `<div style="margin-bottom:16px">
+    <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.6px;text-transform:uppercase;margin-bottom:6px">Status</div>
+    <div class="date-filter" style="margin-bottom:0">
+      ${STATUS_FILTROS.map(f=>`<button class="date-btn${filtroStatus===f.v?" active":""}" data-sf="${f.v}">${f.l}</button>`).join("")}
+    </div>
+  </div>`;
+}
+function bindStatusFilter(onChange){
+  document.querySelectorAll(".date-btn[data-sf]").forEach(b=>{
+    b.onclick=()=>{ filtroStatus=b.dataset.sf; onChange(); };
+  });
+}
+function aplicarFiltroStatus(lista){
+  if(filtroStatus==="concluidos") return lista.filter(([,p])=>p.statusAtendimento==="concluido");
+  if(filtroStatus==="cancelados") return lista.filter(([,p])=>p.statusAtendimento==="cancelado");
+  if(filtroStatus==="todos") return lista;
+  return lista.filter(([,p])=>!p.statusAtendimento); /* ativos */
 }
 
 function pacientesDoDia(d){ return Object.entries(pacientes).filter(([,p])=>fmtDate(p.chegadaRecepcao)===d).sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao)); }
@@ -699,21 +731,23 @@ function conteudoRecepcao(){
   const el=document.getElementById("content-recepcao");
   if(!el) return;
   const lista=pacientesDoDia(dataSel);
-  const ativos=lista.filter(([,p])=>!p.statusAtendimento);
-  const enc=lista.filter(([,p])=>p.statusAtendimento);
   const ord={emergencia:0,gestante:1,idoso:1,crianca:1,deficiente:1,normal:2};
+  const filtrada=aplicarFiltroStatus(lista);
 
-  let html=dateFilterHTML()+statusBarHTML(lista);
-  if(!lista.length) html+=`<div class="empty-state">Nenhum paciente em ${dataSel}.</div>`;
-  if(ativos.length){
-    html+=`<div class="list-header">Ativos (${ativos.length})</div>`;
-    [...ativos].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2)).forEach(([id,p])=>html+=cardHTML(id,p));
+  let html=dateFilterHTML()+statusFilterHTML()+statusBarHTML(lista);
+  if(!lista.length){
+    html+=`<div class="empty-state">Nenhum paciente em ${dataSel}.</div>`;
+  }else if(!filtrada.length){
+    html+=`<div class="empty-state">Nenhum registro nesse filtro de status.</div>`;
+  }else if(filtroStatus==="ativos"){
+    html+=`<div class="list-header">Ativos (${filtrada.length})</div>`;
+    [...filtrada].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2)).forEach(([id,p])=>html+=cardHTML(id,p));
+  }else{
+    const lbl=STATUS_FILTROS.find(f=>f.v===filtroStatus)?.l||"Registros";
+    html+=`<div class="list-header">${lbl} (${filtrada.length})</div>`;
+    [...filtrada].sort((a,b)=>new Date(b[1].chegadaRecepcao)-new Date(a[1].chegadaRecepcao)).forEach(([id,p])=>html+=cardHTML(id,p));
   }
-  if(enc.length){
-    html+=`<div class="list-header" style="margin-top:22px">Encerrados (${enc.length})</div>`;
-    enc.slice(0,60).forEach(([id,p])=>html+=cardHTML(id,p));
-  }
-  el.innerHTML=html; bindDateFilter();
+  el.innerHTML=html; bindDateFilter(); bindStatusFilter(conteudoRecepcao);
   el.querySelectorAll("[data-pid]").forEach(c=>c.onclick=()=>render("detalhe",{id:c.dataset.pid,origem:"recepcao"}));
 }
 
@@ -735,37 +769,52 @@ function conteudoSala(){
   const lista=pacientesDoDia(dataSel);
   const ord={emergencia:0,gestante:1,idoso:1,crianca:1,deficiente:1,normal:2};
 
-  const naRec=lista.filter(([,p])=>!p.fimRecepcao&&!p.statusAtendimento);
-  const filaSala=lista.filter(([,p])=>p.fimRecepcao&&!p.statusAtendimento);
-  const emExame=filaSala.filter(([,p])=>p.inicioExame&&!p.fimExame);
-  const aguardExame=filaSala.filter(([,p])=>!p.inicioExame);
-  const aguardFinal=filaSala.filter(([,p])=>p.fimExame);
+  let html=dateFilterHTML()+statusFilterHTML()+statusBarHTML(lista);
 
-  let html=dateFilterHTML()+statusBarHTML(lista);
+  if(filtroStatus==="ativos"){
+    const naRec=lista.filter(([,p])=>!p.fimRecepcao&&!p.statusAtendimento);
+    const filaSala=lista.filter(([,p])=>p.fimRecepcao&&!p.statusAtendimento);
+    const emExame=filaSala.filter(([,p])=>p.inicioExame&&!p.fimExame);
+    const aguardExame=filaSala.filter(([,p])=>!p.inicioExame);
+    const aguardFinal=filaSala.filter(([,p])=>p.fimExame);
 
-  if(naRec.length){
-    html+=`<div class="list-header" style="color:var(--warning)">⏳ Em processo na Recepção (${naRec.length})</div>`;
-    naRec.forEach(([,p])=>{
-      const pm=PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
-      html+=`<div class="processo-card"><div class="processo-name">${p.nome}</div>
-        <div class="processo-sub">Chegou: ${fmtTime(p.chegadaRecepcao)} · ${pm.l} · ${p.convenio||""}</div></div>`;
-    });
+    if(naRec.length){
+      html+=`<div class="list-header" style="color:var(--warning)">⏳ Em processo na Recepção (${naRec.length})</div>`;
+      naRec.forEach(([,p])=>{
+        const pm=PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
+        html+=`<div class="processo-card"><div class="processo-name">${p.nome}</div>
+          <div class="processo-sub">Chegou: ${fmtTime(p.chegadaRecepcao)} · ${pm.l} · ${p.convenio||""}</div></div>`;
+      });
+    }
+    if(aguardExame.length){
+      html+=`<div class="list-header" style="color:var(--purple);margin-top:${naRec.length?'22px':'0'}">🟣 Aguardando Exame (${aguardExame.length})</div>`;
+      [...aguardExame].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2)).forEach(([id,p])=>html+=cardHTML(id,p));
+    }
+    if(emExame.length){
+      html+=`<div class="list-header" style="color:var(--success);margin-top:22px">🟢 Em Exame (${emExame.length})</div>`;
+      emExame.forEach(([id,p])=>html+=cardHTML(id,p));
+    }
+    if(aguardFinal.length){
+      html+=`<div class="list-header" style="color:var(--cyan);margin-top:22px">🔵 Aguardando Finalização (${aguardFinal.length})</div>`;
+      aguardFinal.forEach(([id,p])=>html+=cardHTML(id,p));
+    }
+    if(!lista.length){
+      html+=`<div class="empty-state">Nenhum paciente em ${dataSel}.</div>`;
+    }else if(!naRec.length&&!aguardExame.length&&!emExame.length&&!aguardFinal.length){
+      html+=`<div class="empty-state">Nenhum paciente ativo em ${dataSel}.</div>`;
+    }
+  }else{
+    const filtrada=aplicarFiltroStatus(lista);
+    if(!filtrada.length){
+      html+=`<div class="empty-state">Nenhum registro nesse filtro de status.</div>`;
+    }else{
+      const lbl=STATUS_FILTROS.find(f=>f.v===filtroStatus)?.l||"Registros";
+      html+=`<div class="list-header">${lbl} (${filtrada.length})</div>`;
+      [...filtrada].sort((a,b)=>new Date(b[1].chegadaRecepcao)-new Date(a[1].chegadaRecepcao)).forEach(([id,p])=>html+=cardHTML(id,p));
+    }
   }
-  if(aguardExame.length){
-    html+=`<div class="list-header" style="color:var(--purple);margin-top:${naRec.length?'22px':'0'}">🟣 Aguardando Exame (${aguardExame.length})</div>`;
-    [...aguardExame].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2)).forEach(([id,p])=>html+=cardHTML(id,p));
-  }
-  if(emExame.length){
-    html+=`<div class="list-header" style="color:var(--success);margin-top:22px">🟢 Em Exame (${emExame.length})</div>`;
-    emExame.forEach(([id,p])=>html+=cardHTML(id,p));
-  }
-  if(aguardFinal.length){
-    html+=`<div class="list-header" style="color:var(--cyan);margin-top:22px">🔵 Aguardando Finalização (${aguardFinal.length})</div>`;
-    aguardFinal.forEach(([id,p])=>html+=cardHTML(id,p));
-  }
-  if(!lista.length) html+=`<div class="empty-state">Nenhum paciente em ${dataSel}.</div>`;
 
-  el.innerHTML=html; bindDateFilter();
+  el.innerHTML=html; bindDateFilter(); bindStatusFilter(conteudoSala);
   el.querySelectorAll("[data-pid]").forEach(c=>c.onclick=()=>render("detalhe",{id:c.dataset.pid,origem:"sala"}));
 }
 
@@ -861,10 +910,11 @@ function conteudoSupervisor(aba="painel"){
     el.innerHTML=html; bindDateFilter();
 
   } else if(aba==="todos"){
-    let html=dateFilterHTML()+`<div class="section-title">${lista.length} registros em ${dataSel}</div>`;
-    if(!lista.length) html+=`<div class="empty-state">Nenhum registro.</div>`;
-    [...lista].sort((a,b)=>new Date(b[1].chegadaRecepcao)-new Date(a[1].chegadaRecepcao)).forEach(([id,p])=>html+=cardHTML(id,p));
-    el.innerHTML=html; bindDateFilter();
+    const filtrada=aplicarFiltroStatus(lista);
+    let html=dateFilterHTML()+statusFilterHTML()+`<div class="section-title">${filtrada.length} registros em ${dataSel}</div>`;
+    if(!filtrada.length) html+=`<div class="empty-state">Nenhum registro nesse filtro de status.</div>`;
+    [...filtrada].sort((a,b)=>new Date(b[1].chegadaRecepcao)-new Date(a[1].chegadaRecepcao)).forEach(([id,p])=>html+=cardHTML(id,p));
+    el.innerHTML=html; bindDateFilter(); bindStatusFilter(()=>conteudoSupervisor("todos"));
     el.querySelectorAll("[data-pid]").forEach(c=>c.onclick=()=>render("detalhe",{id:c.dataset.pid,origem:"supervisor"}));
 
   } else if(aba==="relatorio"){
@@ -946,6 +996,7 @@ function _renderDetalhe(id,origem){
         <div class="pac-name">${p.nome}</div>
         <div class="pac-meta" style="color:var(--blue3)">${exArr.join(" · ")||"—"}</div>
         <div class="pac-meta">${p.convenio||""} ${p.turno?`· ${p.turno}`:""}</div>
+        ${p.outroExame?`<div class="pac-meta" style="color:var(--purple)">+ outro exame no mesmo dia: ${(p.outrasModalidades||[]).join(", ")||"não especificado"}</div>`:""}
         <div class="pac-id">ID: ${id} · ${fmtDate(p.chegadaRecepcao)}</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
           <span class="badge" style="background:${pm.bg};color:${pm.cor};border:1px solid ${pm.cor}44">${pm.l}</span>
@@ -1118,8 +1169,8 @@ function modalNovoPaciente(){
       <button id="m-x" style="background:none;border:none;color:var(--text3);font-size:26px;cursor:pointer;line-height:1">×</button>
     </div>
     <div class="field-group">
-      <label class="field-label">Nome (opcional)</label>
-      <input id="m-nome" class="field-input" placeholder="Nome ou apelido" autocomplete="off"/>
+      <label class="field-label">Nome completo <span style="color:var(--danger)">*</span></label>
+      <input id="m-nome" class="field-input" placeholder="Nome do paciente" autocomplete="off"/>
     </div>
     <div class="field-group">
       <label class="field-label">Exames <span style="color:var(--danger)">*</span> <span id="cnt-ex" style="color:var(--blue2);font-size:11px"></span></label>
@@ -1130,9 +1181,9 @@ function modalNovoPaciente(){
       <div class="exame-sel-list" id="ex-sel"></div>
     </div>
     <div class="field-group">
-      <label class="field-label">Prioridade</label>
+      <label class="field-label">Prioridade <span style="color:var(--danger)">*</span></label>
       <div class="prio-grid">
-        ${PRIORIDADES.map(pr=>`<button class="prio-btn" data-pv="${pr.v}" style="${pr.v==="normal"?`border-color:${pr.cor};background:${pr.bg};color:${pr.cor}`:""}">${pr.l}</button>`).join("")}
+        ${PRIORIDADES.map(pr=>`<button class="prio-btn" data-pv="${pr.v}">${pr.l}</button>`).join("")}
       </div>
     </div>
     <div class="field-group">
@@ -1141,6 +1192,19 @@ function modalNovoPaciente(){
         <option value="">— selecionar —</option>
         ${CONVENIOS.map(c=>`<option>${c}</option>`).join("")}
       </select>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Paciente tem outro exame no mesmo dia? <span style="color:var(--danger)">*</span></label>
+      <div class="status-atend-grid">
+        <button class="status-atend-btn" id="btn-outro-sim">Sim</button>
+        <button class="status-atend-btn" id="btn-outro-nao">Não</button>
+      </div>
+      <div id="outro-modalidades-wrap" style="display:none">
+        <label class="field-label">Qual(is)?</label>
+        <div class="exame-grid" style="grid-template-columns:repeat(2,1fr);max-height:none">
+          ${OUTRAS_MODALIDADES.map(m=>`<button class="exame-chip" data-om="${m}">${m}</button>`).join("")}
+        </div>
+      </div>
     </div>
     <div class="field-group">
       <label class="field-label">Observações</label>
@@ -1154,10 +1218,12 @@ function modalNovoPaciente(){
 
   document.getElementById("busca-ex").oninput=function(){
     const q=this.value.toLowerCase();
-    document.querySelectorAll(".exame-chip").forEach(c=>{ c.style.display=c.dataset.ex.toLowerCase().includes(q)?"":"none"; });
+    document.querySelectorAll(".exame-chip[data-ex]").forEach(c=>{ c.style.display=c.dataset.ex.toLowerCase().includes(q)?"":"none"; });
   };
-  let prioSel="normal";
-  document.querySelectorAll(".exame-chip").forEach(c=>{
+  let prioSel=null;
+  let outroExameSel=null;
+  let modalidadesSel=[];
+  document.querySelectorAll(".exame-chip[data-ex]").forEach(c=>{
     c.onclick=()=>{
       const ex=c.dataset.ex;
       if(examesSel.includes(ex)){ examesSel=examesSel.filter(e=>e!==ex); c.classList.remove("selected"); }
@@ -1173,17 +1239,45 @@ function modalNovoPaciente(){
       b.style.borderColor=pm.cor; b.style.background=pm.bg; b.style.color=pm.cor;
     };
   });
+  const outroWrap=document.getElementById("outro-modalidades-wrap");
+  const btnOutroSim=document.getElementById("btn-outro-sim");
+  const btnOutroNao=document.getElementById("btn-outro-nao");
+  btnOutroSim.onclick=()=>{
+    outroExameSel="sim";
+    btnOutroSim.classList.add("sel-concluido"); btnOutroNao.classList.remove("sel-cancelado");
+    outroWrap.style.display="block";
+  };
+  btnOutroNao.onclick=()=>{
+    outroExameSel="nao"; modalidadesSel=[];
+    btnOutroNao.classList.add("sel-cancelado"); btnOutroSim.classList.remove("sel-concluido");
+    outroWrap.style.display="none";
+    document.querySelectorAll("[data-om]").forEach(c=>c.classList.remove("selected"));
+  };
+  document.querySelectorAll("[data-om]").forEach(c=>{
+    c.onclick=()=>{
+      const m=c.dataset.om;
+      if(modalidadesSel.includes(m)){ modalidadesSel=modalidadesSel.filter(x=>x!==m); c.classList.remove("selected"); }
+      else{ modalidadesSel.push(m); c.classList.add("selected"); }
+    };
+  });
   const fechar=()=>{ ov.style.display="none"; ov.innerHTML=""; examesSel=[]; };
   document.getElementById("m-x").onclick=fechar;
   document.getElementById("m-cancel").onclick=fechar;
   document.getElementById("m-salvar").onclick=()=>{
+    const nome=document.getElementById("m-nome").value.trim();
+    if(!nome){ alert("Preencha o nome do paciente."); return; }
     if(!examesSel.length){ alert("Selecione pelo menos um exame."); return; }
+    if(!prioSel){ alert("Selecione a prioridade do paciente."); return; }
     const conv=document.getElementById("m-conv").value;
     if(!conv){ alert("Selecione o convênio."); return; }
+    if(outroExameSel===null){ alert("Informe se o paciente tem outro exame no mesmo dia (Sim ou Não)."); return; }
+    if(outroExameSel==="sim"&&!modalidadesSel.length){ alert("Selecione qual(is) outro(s) exame(s) o paciente tem."); return; }
     const nid=push(ref(db,"pacientes")).key;
     set(ref(db,`pacientes/${nid}`),{
-      nome:document.getElementById("m-nome").value.trim()||`Paciente ${nid.slice(-4).toUpperCase()}`,
+      nome,
       exames:examesSel,exame:examesSel[0],prioridade:prioSel,convenio:conv,
+      outroExame:outroExameSel==="sim",
+      outrasModalidades:outroExameSel==="sim"?modalidadesSel:[],
       obs:document.getElementById("m-obs").value.trim(),
       operadorNome:currentUser.nome,turno:horaTurno(),
       chegadaRecepcao:nowISO(),inicioRecepcao:null,fimRecepcao:null,
@@ -1335,6 +1429,7 @@ function cardHTML(id,p){
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
         <span class="badge" style="background:${sm.bg};color:${sm.cor};border:1px solid ${sm.cor}44">${sm.l}</span>
         ${p.prioridade!=="normal"?`<span class="badge" style="background:${pm.bg};color:${pm.cor};border:1px solid ${pm.cor}44">${pm.l}</span>`:""}
+        ${p.outroExame?`<span class="badge" style="color:var(--purple);border-color:var(--purple)44" title="${(p.outrasModalidades||[]).join(", ")}">+ outro exame</span>`:""}
       </div>
     </div>
   </div>`;
@@ -1346,7 +1441,7 @@ function calcMedia(list,fn){ const vals=list.map(([,p])=>fn(p)).filter(v=>v!==nu
 function exportarCSV(){
   const headers=["ID","Nome","Data","Exames","Prioridade","Convenio","Turno","Operador",
     "ChegadaRecepcao","InicioRecepcao","FimRecepcao","InicioExame","FimExame",
-    "EsperaMin","ExameMin","TotalMin","Adversos","Status","Obs"];
+    "EsperaMin","ExameMin","TotalMin","OutroExameMesmoDia","OutrasModalidades","Adversos","Status","Obs"];
   const rows=Object.entries(pacientes).map(([id,p])=>[
     id,p.nome,fmtDate(p.chegadaRecepcao),
     (Array.isArray(p.exames)?p.exames:[p.exame]).filter(Boolean).join("; "),
@@ -1356,6 +1451,8 @@ function exportarCSV(){
     diffMin(p.fimRecepcao,p.inicioExame)??"",
     diffMin(p.inicioExame,p.fimExame)??"",
     diffMin(p.chegadaRecepcao,p.fimExame)??"",
+    p.outroExame?"Sim":"Não",
+    (p.outrasModalidades||[]).join("; "),
     (p.adversos||[]).map(a=>a.tipo).join("; "),
     p.statusAtendimento||statusOf(p),p.obs||""
   ]);
