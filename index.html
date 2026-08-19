@@ -222,6 +222,12 @@ textarea.field-input{resize:vertical;min-height:75px}
   color:var(--text3);margin-bottom:14px;padding-bottom:9px;border-bottom:1px solid var(--border)}
 .list-header{font-size:13px;font-weight:800;color:var(--text3);letter-spacing:.6px;
   text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.list-subheader{font-size:12px;font-weight:800;color:var(--text3);letter-spacing:.5px;
+  text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ordem-num{display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;min-width:22px;border-radius:50%;background:var(--card2);
+  border:1px solid var(--border2);color:var(--text2);font-size:12px;font-weight:800;
+  margin-right:8px;font-family:'IBM Plex Mono',monospace;vertical-align:middle}
 
 /* ── MODAL ── */
 #modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);
@@ -740,8 +746,20 @@ function conteudoRecepcao(){
   }else if(!filtrada.length){
     html+=`<div class="empty-state">Nenhum registro nesse filtro de status.</div>`;
   }else if(filtroStatus==="ativos"){
-    html+=`<div class="list-header">Ativos (${filtrada.length})</div>`;
-    [...filtrada].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2)).forEach(([id,p])=>html+=cardHTML(id,p));
+    const prioritarios=filtrada.filter(([,p])=>p.prioridade!=="normal")
+      .sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao));
+    const normais=filtrada.filter(([,p])=>p.prioridade==="normal")
+      .sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao));
+    let n=0;
+    html+=`<div class="list-header">Ativos (${filtrada.length}) · ordem de chamada</div>`;
+    if(prioritarios.length){
+      html+=`<div class="list-subheader" style="color:var(--warning)">🔶 Prioridade (${prioritarios.length})</div>`;
+      prioritarios.forEach(([id,p])=>{ n++; html+=cardHTML(id,p,n); });
+    }
+    if(normais.length){
+      html+=`<div class="list-subheader" style="margin-top:${prioritarios.length?"16px":"0"}">➜ Ordem de chegada (${normais.length})</div>`;
+      normais.forEach(([id,p])=>{ n++; html+=cardHTML(id,p,n); });
+    }
   }else{
     const lbl=STATUS_FILTROS.find(f=>f.v===filtroStatus)?.l||"Registros";
     html+=`<div class="list-header">${lbl} (${filtrada.length})</div>`;
@@ -787,8 +805,20 @@ function conteudoSala(){
       });
     }
     if(aguardExame.length){
-      html+=`<div class="list-header" style="color:var(--purple);margin-top:${naRec.length?'22px':'0'}">🟣 Aguardando Exame (${aguardExame.length})</div>`;
-      [...aguardExame].sort((a,b)=>(ord[a[1].prioridade]||2)-(ord[b[1].prioridade]||2)).forEach(([id,p])=>html+=cardHTML(id,p));
+      html+=`<div class="list-header" style="color:var(--purple);margin-top:${naRec.length?'22px':'0'}">🟣 Aguardando Exame (${aguardExame.length}) · ordem de chamada</div>`;
+      const prioritariosEx=aguardExame.filter(([,p])=>p.prioridade!=="normal")
+        .sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao));
+      const normaisEx=aguardExame.filter(([,p])=>p.prioridade==="normal")
+        .sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao));
+      let nEx=0;
+      if(prioritariosEx.length){
+        html+=`<div class="list-subheader" style="color:var(--warning)">🔶 Prioridade (${prioritariosEx.length})</div>`;
+        prioritariosEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx); });
+      }
+      if(normaisEx.length){
+        html+=`<div class="list-subheader" style="margin-top:${prioritariosEx.length?"16px":"0"}">➜ Ordem de chegada (${normaisEx.length})</div>`;
+        normaisEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx); });
+      }
     }
     if(emExame.length){
       html+=`<div class="list-header" style="color:var(--success);margin-top:22px">🟢 Em Exame (${emExame.length})</div>`;
@@ -1413,15 +1443,16 @@ function statusBarHTML(lista){
   });
   return html+`</div>`;
 }
-function cardHTML(id,p){
+function cardHTML(id,p,ordem){
   const st=statusOf(p); const sm=STATUS_META[st]||{l:"—",cor:"#5a7fa8",bg:"rgba(90,127,168,.1)"};
   const pm=PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
   const exArr=Array.isArray(p.exames)?p.exames:(p.exame?[p.exame]:[]);
   const espMin=p.fimRecepcao&&!p.inicioExame?diffMin(p.fimRecepcao,nowISO()):null;
+  const ordemBadge=ordem?`<span class="ordem-num">${ordem}</span>`:"";
   return `<div class="pac-card" data-pid="${id}" style="border-left-color:${sm.cor}">
     <div class="pac-card-top">
       <div style="flex:1;min-width:0">
-        <div class="pac-card-name">${p.nome}</div>
+        <div class="pac-card-name">${ordemBadge}${p.nome}</div>
         <div class="pac-card-sub">${exArr.slice(0,2).join(", ")}${exArr.length>2?` +${exArr.length-2}`:""}</div>
         <div class="pac-card-sub">${p.convenio||""}</div>
         <div class="pac-card-time">Chegada: ${fmtTime(p.chegadaRecepcao)}${espMin!==null&&st==="aguardando_exame"?`<span style="color:${espMin>30?"var(--danger)":"var(--warning)"};font-weight:700;margin-left:8px">⏱ ${espMin}min</span>`:""}</div>
