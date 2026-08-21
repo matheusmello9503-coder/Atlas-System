@@ -420,15 +420,26 @@ const PRIORIDADES = [
   {v:"crianca",  l:"Criança",   cor:"#00c8e0",bg:"rgba(0,200,224,.15)"},
   {v:"deficiente",l:"PcD",      cor:"#0ecb81",bg:"rgba(14,203,129,.15)"}
 ];
-const ADVERSOS = [
-  "Paciente sem preparo (jejum)","Documento incorreto / ausente",
-  "Atraso na autorização de convênio","Atraso do médico",
-  "Falha no equipamento","Dificuldade de mobilidade",
-  "Exame interrompido","Outro"
+const ADVERSOS_RECEPCAO = [
+  "Atraso na autorização de convênio",
+  "Problema de sistema",
+  "Lançamento incorreto (erro da recepção)",
+  "Documento/Pedido incorreto ou ausente",
+  "Outro"
+];
+const ADVERSOS_SALA = [
+  "Atraso do médico",
+  "Falha no equipamento",
+  "Dificuldade de mobilidade",
+  "Exame interrompido",
+  "Bexiga vazia",
+  "Sem jejum",
+  "Paciente sem preparo",
+  "Outro"
 ];
 const OUTRAS_MODALIDADES = [
   "Bioimpedância","Densitometria Óssea","Mamografia Digital",
-  "Ressonância Magnética","Tomografia"
+  "Radiografia Digital","Ressonância Magnética","Tomografia"
 ];
 const PERFIS = {recepcao:"🟦 Recepção",sala:"🟣 Sala de Exame",supervisor:"📊 Supervisor",admin:"⚙ Admin"};
 const CORES_PERFIL = {recepcao:"#1e6fff",sala:"#9b6dff",supervisor:"#0ecb81",admin:"#f04040"};
@@ -932,7 +943,7 @@ function conteudoSupervisor(aba="painel"){
     const advs=lista.flatMap(([,p])=>(p.adversos||[]).map(a=>({...a,pn:p.nome})));
     if(advs.length){
       html+=`<div class="section-title" style="margin-top:18px">⚠ Eventos Adversos</div>`;
-      advs.forEach(a=>html+=`<div class="adverse-chip">⚠ ${a.tipo}<span style="color:var(--text3);margin-left:8px;font-size:12px">${a.pn} · ${fmtTime(a.ts)}</span></div>`);
+      advs.forEach(a=>html+=`<div class="adverse-chip">⚠ ${a.tipo}${a.obs?`: ${a.obs}`:""}<span style="color:var(--text3);margin-left:8px;font-size:12px">${a.pn} · ${fmtTime(a.ts)}</span></div>`);
     }
     el.innerHTML=html; bindDateFilter();
 
@@ -1063,19 +1074,44 @@ function _renderDetalhe(id,origem){
 
       <div class="ts-section">
         <div class="ts-section-title">⚠ Eventos Adversos <span style="font-weight:400;color:var(--text3);font-size:11px">(opcional)</span></div>
-        <div id="advs-list">
-          ${(p.adversos||[]).length
-            ?(p.adversos||[]).map(a=>`<div class="adverse-chip">⚠ ${a.tipo}<span style="color:var(--text3);margin-left:8px;font-size:12px">${fmtTime(a.ts)}</span></div>`).join("")
-            :`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Nenhum evento registrado.</div>`}
+
+        <div style="margin-bottom:16px">
+          <div class="list-subheader" style="color:var(--blue2)">🟦 Recepção</div>
+          <div id="advs-list-rec">
+            ${(p.adversos||[]).filter(a=>a.setor==="recepcao").length
+              ?(p.adversos||[]).filter(a=>a.setor==="recepcao").map(a=>`<div class="adverse-chip">⚠ ${a.tipo}${a.obs?`: ${a.obs}`:""}<span style="color:var(--text3);margin-left:8px;font-size:12px">${fmtTime(a.ts)}</span></div>`).join("")
+              :`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Nenhum evento registrado.</div>`}
+          </div>
+          ${podeRec&&!encerrado?`
+          <div style="display:flex;gap:9px;margin-top:9px;flex-wrap:wrap">
+            <select id="sel-adv-rec" class="field-input" style="flex:1;min-width:180px;font-size:13px">
+              <option value="">Selecionar evento adverso...</option>
+              ${ADVERSOS_RECEPCAO.map(a=>`<option>${a}</option>`).join("")}
+            </select>
+            <button class="btn-sm" id="btn-adv-rec">+ Add</button>
+          </div>
+          <input id="adv-rec-outro" class="field-input" style="display:none;margin-top:9px" placeholder="Descreva o evento...">
+          `:""}
         </div>
-        ${!encerrado?`
-        <div style="display:flex;gap:9px;margin-top:9px">
-          <select id="sel-adv" class="field-input" style="flex:1;font-size:13px">
-            <option value="">Selecionar evento adverso...</option>
-            ${ADVERSOS.map(a=>`<option>${a}</option>`).join("")}
-          </select>
-          <button class="btn-sm" id="btn-adv">+ Add</button>
-        </div>`:""}
+
+        <div>
+          <div class="list-subheader" style="color:var(--purple)">🟣 Sala de Exame</div>
+          <div id="advs-list-sala">
+            ${(p.adversos||[]).filter(a=>a.setor==="sala").length
+              ?(p.adversos||[]).filter(a=>a.setor==="sala").map(a=>`<div class="adverse-chip">⚠ ${a.tipo}${a.obs?`: ${a.obs}`:""}<span style="color:var(--text3);margin-left:8px;font-size:12px">${fmtTime(a.ts)}</span></div>`).join("")
+              :`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Nenhum evento registrado.</div>`}
+          </div>
+          ${podeSala&&!encerrado?`
+          <div style="display:flex;gap:9px;margin-top:9px;flex-wrap:wrap">
+            <select id="sel-adv-sala" class="field-input" style="flex:1;min-width:180px;font-size:13px">
+              <option value="">Selecionar evento adverso...</option>
+              ${ADVERSOS_SALA.map(a=>`<option>${a}</option>`).join("")}
+            </select>
+            <button class="btn-sm" id="btn-adv-sala">+ Add</button>
+          </div>
+          <input id="adv-sala-outro" class="field-input" style="display:none;margin-top:9px" placeholder="Descreva o evento...">
+          `:""}
+        </div>
       </div>
 
       <div class="ts-section">
@@ -1112,12 +1148,30 @@ function _renderDetalhe(id,origem){
 
   document.getElementById("btn-back").onclick=()=>render(origem);
 
-  document.getElementById("btn-adv")?.addEventListener("click",()=>{
-    const sel=document.getElementById("sel-adv");
-    if(!sel.value) return;
+  const selRec=document.getElementById("sel-adv-rec");
+  const outroRec=document.getElementById("adv-rec-outro");
+  selRec?.addEventListener("change",()=>{ outroRec.style.display=selRec.value==="Outro"?"block":"none"; });
+  document.getElementById("btn-adv-rec")?.addEventListener("click",()=>{
+    if(!selRec.value) return;
+    if(selRec.value==="Outro"&&!outroRec.value.trim()){ alert("Descreva o evento adverso."); return; }
     const atual=pacientes[id]?.adversos||[];
-    update(ref(db,`pacientes/${id}`),{adversos:[...atual,{tipo:sel.value,ts:nowISO()}]});
-    sel.value="";
+    const novo={tipo:selRec.value,ts:nowISO(),setor:"recepcao"};
+    if(selRec.value==="Outro") novo.obs=outroRec.value.trim();
+    update(ref(db,`pacientes/${id}`),{adversos:[...atual,novo]});
+    selRec.value=""; outroRec.value=""; outroRec.style.display="none";
+  });
+
+  const selSala=document.getElementById("sel-adv-sala");
+  const outroSala=document.getElementById("adv-sala-outro");
+  selSala?.addEventListener("change",()=>{ outroSala.style.display=selSala.value==="Outro"?"block":"none"; });
+  document.getElementById("btn-adv-sala")?.addEventListener("click",()=>{
+    if(!selSala.value) return;
+    if(selSala.value==="Outro"&&!outroSala.value.trim()){ alert("Descreva o evento adverso."); return; }
+    const atual=pacientes[id]?.adversos||[];
+    const novo={tipo:selSala.value,ts:nowISO(),setor:"sala"};
+    if(selSala.value==="Outro") novo.obs=outroSala.value.trim();
+    update(ref(db,`pacientes/${id}`),{adversos:[...atual,novo]});
+    selSala.value=""; outroSala.value=""; outroSala.style.display="none";
   });
 
   document.getElementById("btn-obs")?.addEventListener("click",()=>{
@@ -1481,7 +1535,7 @@ function exportarCSV(){
     diffMin(p.chegadaRecepcao,p.fimExame)??"",
     p.outroExame?"Sim":"Não",
     (p.outrasModalidades||[]).join("; "),
-    (p.adversos||[]).map(a=>a.tipo).join("; "),
+    (p.adversos||[]).map(a=>a.obs?`${a.tipo}: ${a.obs}`:a.tipo).join("; "),
     p.statusAtendimento||statusOf(p),p.obs||""
   ]);
   const csv=[headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
