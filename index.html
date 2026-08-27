@@ -408,6 +408,10 @@ textarea.field-input{resize:vertical;min-height:75px}
   .filtro-grupo-label{display:none}
   .filtro-grupo:not(.date-toolbar){flex:1 1 260px}
   .filtro-grupo:not(.date-toolbar) .date-btn{flex:1;text-align:center;white-space:nowrap}
+  .filtros-barra > .filtro-grupo.date-filter{
+    flex:1 1 100%;overflow-x:visible;flex-wrap:wrap;
+    border-left:none;padding-left:0;padding-top:14px;border-top:1px solid var(--border)
+  }
   #app[data-tela="recepcao"] .content,
   #app[data-tela="sala"] .content,
   #app[data-tela="supervisor"] .dash-main .content{
@@ -508,10 +512,10 @@ const CONVENIOS = [
 ];
 const PRIORIDADES = [
   {v:"normal",   l:"Normal",    cor:"#1e6fff",bg:"rgba(30,111,255,.15)"},
-  {v:"gestante", l:"Gestante",  cor:"#9b6dff",bg:"rgba(155,109,255,.15)"},
-  {v:"idoso",    l:"Idoso ≥60", cor:"#f0a500",bg:"rgba(240,165,0,.15)"},
-  {v:"crianca",  l:"Criança",   cor:"#00c8e0",bg:"rgba(0,200,224,.15)"},
-  {v:"deficiente",l:"PcD",      cor:"#0ecb81",bg:"rgba(14,203,129,.15)"}
+  {v:"gestante", l:"Gestante",  cor:"#f472b6",bg:"rgba(244,114,182,.15)"},
+  {v:"idoso",    l:"Idoso ≥60", cor:"#f472b6",bg:"rgba(244,114,182,.15)"},
+  {v:"crianca",  l:"Criança",   cor:"#f472b6",bg:"rgba(244,114,182,.15)"},
+  {v:"deficiente",l:"PcD",      cor:"#f472b6",bg:"rgba(244,114,182,.15)"}
 ];
 const ADVERSOS_RECEPCAO = [
   "Atraso na autorização de convênio",
@@ -844,19 +848,23 @@ function bindStatusFilter(onChange){
   });
 }
 
-/* ── Filtro por etapa (Na Recepção / Aguard. Exame / Em Exame / Aguard. Finalizar) ──
-   Só faz sentido dentro da aba "Ativos": concluídos e cancelados já são estados finais. */
+/* ── Filtro por etapa (Aguard. Recepção / Em Atendimento / Aguard. Exame / Em Exame / Aguard. Finalizar) ──
+   Só faz sentido dentro da aba "Ativos": concluídos e cancelados já são estados finais.
+   As 5 etapas seguem exatamente a mesma sequência e os mesmos rótulos usados em STATUS_META,
+   sem juntar "chegou" (ainda nem foi chamado) com "na_recepcao" (já está sendo atendido). */
 const ETAPAS_ATIVAS = [
-  {v:"recepcao",         l:"Na Recepção",       cor:"#1e6fff"},
+  {v:"chegou",           l:"Aguard. Recepção",  cor:"#f0a500"},
+  {v:"na_recepcao",      l:"Em Atendimento",    cor:"#1e6fff"},
   {v:"aguardando_exame", l:"Aguard. Exame",     cor:"#9b6dff"},
   {v:"em_exame",         l:"Em Exame",          cor:"#0ecb81"},
   {v:"aguard_finalizar", l:"Aguard. Finalizar", cor:"#00c8e0"}
 ];
 function etapaOf(p){
-  if(p.fimExame)    return "aguard_finalizar";
-  if(p.inicioExame) return "em_exame";
-  if(p.fimRecepcao) return "aguardando_exame";
-  return "recepcao";
+  if(p.fimExame)        return "aguard_finalizar";
+  if(p.inicioExame)     return "em_exame";
+  if(p.fimRecepcao)     return "aguardando_exame";
+  if(p.inicioRecepcao)  return "na_recepcao";
+  return "chegou";
 }
 function etapaFilterHTML(lista){
   const ativos=lista.filter(([,p])=>!p.statusAtendimento);
@@ -1008,8 +1016,17 @@ function conteudoRecepcao(){
       }
     }
     if(avancados.length){
-      html+=`<div class="list-header" style="color:var(--purple);margin-top:${pendentes.length?'26px':'0'}">🟣 Já em atendimento na Sala (${avancados.length})</div>`;
-      [...avancados].sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao)).forEach(([id,p])=>html+=cardHTML(id,p));
+      const icones={aguardando_exame:"🟣",em_exame:"🟢",aguard_finalizar:"🔷"};
+      const grupos=["aguardando_exame","em_exame","aguard_finalizar"].map(v=>({
+        meta:ETAPAS_ATIVAS.find(e=>e.v===v),
+        lista:avancados.filter(([,p])=>etapaOf(p)===v)
+          .sort((a,b)=>new Date(a[1].chegadaRecepcao)-new Date(b[1].chegadaRecepcao))
+      })).filter(g=>g.lista.length);
+      grupos.forEach((g,i)=>{
+        const topo=i===0?(pendentes.length?'26px':'0'):'22px';
+        html+=`<div class="list-header" style="color:${g.meta.cor};margin-top:${topo}">${icones[g.meta.v]} ${g.meta.l} (${g.lista.length})</div>`;
+        g.lista.forEach(([id,p])=>html+=cardHTML(id,p,null,null,false));
+      });
     }
   }else{
     const lbl=STATUS_FILTROS.find(f=>f.v===filtroStatus)?.l||"Registros";
@@ -1046,14 +1063,17 @@ function conteudoSala(){
     html+=etapaFilterHTML(lista);
     html+=`</div>`;
 
-    const naRec=lista.filter(([,p])=>!p.fimRecepcao&&!p.statusAtendimento);
+    let naRec=lista.filter(([,p])=>!p.fimRecepcao&&!p.statusAtendimento);
     const filaSala=lista.filter(([,p])=>p.fimRecepcao&&!p.statusAtendimento);
     const emExame=filaSala.filter(([,p])=>p.inicioExame&&!p.fimExame);
     const aguardExame=filaSala.filter(([,p])=>!p.inicioExame);
     const aguardFinal=filaSala.filter(([,p])=>p.fimExame);
 
     const vTodos=subFiltroEtapa==="todos";
-    const vNaRec=vTodos||subFiltroEtapa==="recepcao";
+    const vNaRec=vTodos||subFiltroEtapa==="chegou"||subFiltroEtapa==="na_recepcao";
+    if(subFiltroEtapa==="chegou"||subFiltroEtapa==="na_recepcao"){
+      naRec=naRec.filter(([,p])=>etapaOf(p)===subFiltroEtapa);
+    }
     const vAguardExame=vTodos||subFiltroEtapa==="aguardando_exame";
     const vEmExame=vTodos||subFiltroEtapa==="em_exame";
     const vAguardFinal=vTodos||subFiltroEtapa==="aguard_finalizar";
@@ -1083,26 +1103,26 @@ function conteudoSala(){
         html+=filaExplicacaoHTML();
         html+=`<div class="fila-duas-colunas">`;
         html+=`<div class="fila-coluna"><div class="list-subheader" style="color:var(--warning)">🔶 Prioridade (${prioritariosEx.length})</div>`;
-        prioritariosEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala"); });
+        prioritariosEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala",false); });
         html+=`</div>`;
         html+=`<div class="fila-coluna"><div class="list-subheader">➜ Ordem de chegada (${normaisEx.length})</div>`;
-        normaisEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala"); });
+        normaisEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala",false); });
         html+=`</div></div>`;
       }else if(prioritariosEx.length){
         html+=`<div class="list-subheader" style="color:var(--warning)">🔶 Prioridade (${prioritariosEx.length})</div>`;
-        prioritariosEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala"); });
+        prioritariosEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala",false); });
       }else if(normaisEx.length){
         html+=`<div class="list-subheader">➜ Ordem de chegada (${normaisEx.length})</div>`;
-        normaisEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala"); });
+        normaisEx.forEach(([id,p])=>{ nEx++; html+=cardHTML(id,p,nEx,"sala",false); });
       }
     }
     if(vEmExame&&emExame.length){
       html+=`<div class="list-header" style="color:var(--success);margin-top:22px">🟢 Em Exame (${emExame.length})</div>`;
-      emExame.forEach(([id,p])=>html+=cardHTML(id,p,null,"sala"));
+      emExame.forEach(([id,p])=>html+=cardHTML(id,p,null,"sala",false));
     }
     if(vAguardFinal&&aguardFinal.length){
       html+=`<div class="list-header" style="color:var(--cyan);margin-top:22px">🔵 Aguardando Finalização (${aguardFinal.length})</div>`;
-      aguardFinal.forEach(([id,p])=>html+=cardHTML(id,p));
+      aguardFinal.forEach(([id,p])=>html+=cardHTML(id,p,null,"sala",false));
     }
     const nadaVisivel=!(vNaRec&&naRec.length)&&!(vAguardExame&&aguardExame.length)&&!(vEmExame&&emExame.length)&&!(vAguardFinal&&aguardFinal.length);
     if(!lista.length){
@@ -1784,7 +1804,7 @@ function statusBarHTML(lista){
   });
   return html+`</div>`;
 }
-function cardHTML(id,p,ordem,contexto){
+function cardHTML(id,p,ordem,contexto,mostrarStatus=true){
   const st=statusOf(p); const sm=STATUS_META[st]||{l:"—",cor:"#5a7fa8",bg:"rgba(90,127,168,.1)"};
   const pm=PRIORIDADES.find(x=>x.v===p.prioridade)||PRIORIDADES[0];
   const exArr=Array.isArray(p.exames)?p.exames:(p.exame?[p.exame]:[]);
@@ -1807,7 +1827,7 @@ function cardHTML(id,p,ordem,contexto){
         ${alertaEsquecido?`<div><span class="badge badge-alerta">⚠ Sem atualização há ${tEtapa}min · verificar, pode ser registro esquecido</span></div>`:""}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-        <span class="badge" style="background:${sm.bg};color:${sm.cor};border:1px solid ${sm.cor}44">${sm.l}</span>
+        ${mostrarStatus?`<span class="badge" style="background:${sm.bg};color:${sm.cor};border:1px solid ${sm.cor}44">${sm.l}</span>`:""}
         ${p.prioridade!=="normal"?`<span class="badge" style="background:${pm.bg};color:${pm.cor};border:1px solid ${pm.cor}44">${pm.l}</span>`:""}
         ${p.outroExame?`<span class="badge" style="color:var(--purple);border-color:var(--purple)44" title="${(p.outrasModalidades||[]).join(", ")}">+ outro exame</span>`:""}
       </div>
