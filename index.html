@@ -1342,7 +1342,8 @@ function _renderDetalhe(id,origem){
         <div class="pac-id">ID: ${id} · ${fmtDate(p.chegadaRecepcao)}</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:12px">
           <span class="badge" style="background:${pm.bg};color:${pm.cor};border:1px solid ${pm.cor}44">${pm.l}</span>
-          ${p.operadorNome?`<span class="badge">${p.operadorNome}</span>`:""}
+          ${p.operadorNome?`<span class="badge">Cadastrado por ${p.operadorNome}</span>`:""}
+          ${p.operadorFinalizacao?`<span class="badge" style="background:${p.statusAtendimento==="cancelado"?"var(--danger-bg)":"var(--success-bg)"};color:${p.statusAtendimento==="cancelado"?"var(--danger)":"var(--success)"};border:1px solid ${p.statusAtendimento==="cancelado"?"var(--danger)":"var(--success)"}44">${p.statusAtendimento==="cancelado"?"Cancelado":"Concluído"} por ${p.operadorFinalizacao}</span>`:""}
         </div>
       </div>
 
@@ -1505,7 +1506,8 @@ function _renderDetalhe(id,origem){
     update(ref(db,`pacientes/${id}`),{
       statusAtendimento: statusSel,
       obs,
-      fimExame: p.fimExame||nowISO()
+      fimExame: p.fimExame||nowISO(),
+      operadorFinalizacao: currentUser?.nome||""
     });
   });
 }
@@ -1513,18 +1515,21 @@ function _renderDetalhe(id,origem){
 /* ── TS Buttons ── */
 function tsBtnHTML(campo,label,p,id,bloq,hab){
   const val=p[campo];
+  const op=p["operador"+campo.charAt(0).toUpperCase()+campo.slice(1)];
   return `<button data-ts="${campo}" data-pid="${id}"
     class="ts-btn${val?" ts-done":""}${(!hab&&!val&&!bloq)?" ts-disabled":""}${bloq?" ts-disabled ts-readonly":""}">
     <span class="ts-label">${label}</span>
     <span class="ts-time">${val?fmtTime(val):"Toque para registrar"}</span>
-    ${val?`<span class="ts-check">✓ registrado às ${fmtTime(val)}</span>`:""}
+    ${val?`<span class="ts-check">✓ registrado às ${fmtTime(val)}${op?` por ${op}`:""}</span>`:""}
   </button>`;
 }
 function tsRoHTML(campo,label,p){
   const val=p[campo];
+  const op=p["operador"+campo.charAt(0).toUpperCase()+campo.slice(1)];
   return `<div class="ts-btn ts-readonly${val?" ts-done":""}">
     <span class="ts-label">${label}</span>
     <span class="ts-time">${val?fmtTime(val):"—"}</span>
+    ${val&&op?`<span class="ts-check">registrado por ${op}</span>`:""}
   </div>`;
 }
 
@@ -1536,12 +1541,13 @@ document.addEventListener("click",e=>{
   const reqs={fimRecepcao:"inicioRecepcao",inicioExame:"fimRecepcao",fimExame:"inicioExame"};
   const req=reqs[campo];
   if(req&&!p[req]){ alert("Registre o campo anterior primeiro."); return; }
-  const up={}; up[campo]=nowISO(); up.operadorUltimo=currentUser?.nome||"";
+  const opField="operador"+campo.charAt(0).toUpperCase()+campo.slice(1);
+  const up={}; up[campo]=nowISO(); up.operadorUltimo=currentUser?.nome||""; up[opField]=currentUser?.nome||"";
   update(ref(db,`pacientes/${pid}`),up);
   const a=ACAO_LABELS[campo];
   mostrarToast(`✓ ${a?a.msg:"Registrado"} — ${p.nome}`,{
     onUndo:()=>{
-      const undoUp={}; undoUp[campo]=null;
+      const undoUp={}; undoUp[campo]=null; undoUp[opField]=null;
       update(ref(db,`pacientes/${pid}`),undoUp);
     }
   });
@@ -1824,6 +1830,7 @@ function cardHTML(id,p,ordem,contexto,mostrarStatus=true){
         <div class="pac-card-sub">${exArr.slice(0,2).join(", ")}${exArr.length>2?` +${exArr.length-2}`:""}</div>
         <div class="pac-card-sub">${p.convenio||""}</div>
         <div class="pac-card-time">Chegada: ${fmtTime(p.chegadaRecepcao)}${tempoHTML}</div>
+        ${p.operadorFinalizacao&&(st==="concluido"||st==="cancelado")?`<div class="pac-card-time">${st==="cancelado"?"Cancelado":"Concluído"} por ${p.operadorFinalizacao}</div>`:""}
         ${alertaEsquecido?`<div><span class="badge badge-alerta">⚠ Sem atualização há ${tEtapa}min · verificar, pode ser registro esquecido</span></div>`:""}
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
